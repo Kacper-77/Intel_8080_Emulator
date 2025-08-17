@@ -1,0 +1,35 @@
+#ifndef CPU_H
+#define CPU_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+
+typedef struct {
+    // 8-bit
+    uint8_t A, B, C, D, E, H, L;
+
+    // 16-bit
+    uint16_t SP;
+    uint16_t PC;
+
+    struct {
+        bool Z;
+        bool S;
+        bool P;
+        bool CY;
+        bool AC;
+    } flags;
+
+    // 64KB memory
+    uint8_t memory[0x10000];
+
+    bool halted;
+
+} CPU8080;
+
+void cpu_init(CPU8080 *cpu);
+void cpu_emulate(CPU8080 *cpu);
+void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr);
+
+#endif
