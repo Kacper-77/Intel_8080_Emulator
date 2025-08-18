@@ -7,6 +7,8 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(SOURCES
     src/main.c
     src/cpu/cpu.c
+    src/cpu/instructions.c
+    src/utils/helpers.c
 )
 
 add_executable(emulator8080 ${SOURCES})

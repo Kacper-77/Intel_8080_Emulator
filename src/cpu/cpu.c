@@ -19,6 +19,7 @@ void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint1
 void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
     switch (opcode) {
         case 0x00: cpu->PC += 1;break;  // NOP
+        case 0x76: cpu->halted = true; break;  // HLT
         
         case 0x3E: mvi(&cpu->A, cpu); break; // MVI A, data
         case 0x06: mvi(&cpu->B, cpu); break;  // MVI B, data
