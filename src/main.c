@@ -7,17 +7,16 @@ int main() {
 
     uint8_t program[] = {
         0x00, // NOP
-        0x3E, // MVI A
-        0xC3, // JMP
+        0x3E, 0x05, // MVI A
+        0x06, 0x0A,  // MVI B
         0x80, // ADD
-        0xC6, // ADI
-        0xCE, //ACI
         0x76,  // HLT
-        0x06  // MVI B
     };
 
-    cpu_load_program(&cpu, program, sizeof(program), 0x0F09);
+    cpu_load_program(&cpu, program, sizeof(program), 0x0000);
     cpu_emulate(&cpu);
+
+    printf("A: %u\n", cpu.A);
 
     return 0;
 }
