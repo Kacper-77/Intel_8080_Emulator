@@ -1,6 +1,4 @@
-#ifndef CPU_H
-#define CPU_H
-
+#pragma once
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -31,5 +29,3 @@ typedef struct {
 void cpu_init(CPU8080 *cpu);
 void cpu_emulate(CPU8080 *cpu);
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr);
-
-#endif

@@ -3,6 +3,10 @@
 #include "../utils/helpers.h"
 #include "stddef.h"
 
+void nop(CPU8080 *cpu) {
+    cpu->PC += 1;
+}
+
 void mvi(uint8_t *reg, CPU8080 *cpu) {
     uint8_t data = cpu->memory[cpu->PC + 1];
 
@@ -47,6 +51,10 @@ void aci(CPU8080 *cpu) {
 void jmp(CPU8080 *cpu) {
     uint16_t addr = cpu->memory[cpu->PC + 1] | (cpu->memory[cpu->PC + 2] << 8);
     cpu->PC = addr;
+}
+
+void hlt(CPU8080 *cpu) {
+    cpu->halted = true;
 }
 
 void inr(uint8_t *reg, CPU8080 *cpu, bool is_memory) {
