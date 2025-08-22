@@ -7,6 +7,8 @@ typedef struct {
     // 8-bit
     uint8_t A, B, C, D, E, H, L;
 
+    uint8_t *registers[8];
+
     // 16-bit
     uint16_t SP;
     uint16_t PC;

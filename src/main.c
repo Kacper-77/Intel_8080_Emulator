@@ -1,9 +1,12 @@
 #include "cpu/cpu.h"
+#include "cpu/decoder.h"
 #include <stdio.h>
 
 int main() {
     CPU8080 cpu;
     cpu_init(&cpu);
+
+    init_instruction_table();
 
     uint8_t program[] = {
         0x00, // NOP

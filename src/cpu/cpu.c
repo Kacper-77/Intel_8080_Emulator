@@ -10,6 +10,15 @@ void cpu_init(CPU8080 *cpu) {
     cpu->SP = 0xFFFF;
     cpu->PC = 0x0000;
     cpu->halted = false;
+
+    cpu->registers[0] = &cpu->B;
+    cpu->registers[1] = &cpu->C;
+    cpu->registers[2] = &cpu->D;
+    cpu->registers[3] = &cpu->E;
+    cpu->registers[4] = &cpu->H;
+    cpu->registers[5] = &cpu->L;
+    cpu->registers[6] = NULL;
+    cpu->registers[7] = &cpu->A;
 }
 
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr) {
