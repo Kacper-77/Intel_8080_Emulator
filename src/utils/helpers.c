@@ -24,3 +24,8 @@ void set_flags_after_inr_dcr(uint8_t result, uint8_t previous ,CPU8080 *cpu, boo
         cpu->flags.AC = ((previous & 0xF) - 1) < 0;
     }
 }
+
+bool is_zero(CPU8080 *cpu) { return cpu->flags.Z == 1; }
+bool is_sign(CPU8080 *cpu) { return cpu->flags.S == 1; }
+bool is_carry(CPU8080 *cpu) { return cpu->flags.CY == 1; }
+bool is_parity(CPU8080 *cpu) { return cpu->flags.P == 1; }

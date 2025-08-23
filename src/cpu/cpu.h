@@ -24,6 +24,8 @@ typedef struct {
     // 64KB memory
     uint8_t memory[0x10000];
 
+    uint64_t cycles;
+
     bool halted;
 
 } CPU8080;
@@ -31,3 +33,5 @@ typedef struct {
 void cpu_init(CPU8080 *cpu);
 void cpu_emulate(CPU8080 *cpu);
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr);
+
+extern const uint8_t t_states[256];

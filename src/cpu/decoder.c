@@ -79,8 +79,12 @@ instruction_table[0x76] = hlt;
 }
 
 void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
+    custom_cycle = false;
     if (instruction_table[opcode]) {
         instruction_table[opcode](opcode, cpu);
+        if (!custom_cycle) {
+            cpu->cycles += t_states[opcode];
+        }
     } else {
         printf("Unknown opcode: 0x%02X\n", opcode);
     }
