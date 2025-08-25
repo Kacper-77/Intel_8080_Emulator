@@ -21,10 +21,10 @@ instruction_table[0x36] = mvi_generic; // MVI M
 instruction_table[0x3E] = mvi_generic; // MVI A
 
 // LXI rp, data16
-// instruction_table[0x01] = lxi_generic; // LXI B
-// instruction_table[0x11] = lxi_generic; // LXI D
-// instruction_table[0x21] = lxi_generic; // LXI H
-// instruction_table[0x31] = lxi_generic; // LXI SP
+instruction_table[0x01] = lxi_generic; // LXI B
+instruction_table[0x11] = lxi_generic; // LXI D
+instruction_table[0x21] = lxi_generic; // LXI H
+instruction_table[0x31] = lxi_generic; // LXI SP
 
 // ADD r
 instruction_table[0x80] = add_generic; // ADD B
@@ -37,14 +37,14 @@ instruction_table[0x86] = add_generic; // ADD M
 instruction_table[0x87] = add_generic; // ADD A
 
 // SUB r
-// instruction_table[0x90] = sub_generic;
-// instruction_table[0x91] = sub_generic;
-// instruction_table[0x92] = sub_generic;
-// instruction_table[0x93] = sub_generic;
-// instruction_table[0x94] = sub_generic;
-// instruction_table[0x95] = sub_generic;
-// instruction_table[0x96] = sub_generic;
-// instruction_table[0x97] = sub_generic;
+instruction_table[0x90] = sub_generic;
+instruction_table[0x91] = sub_generic;
+instruction_table[0x92] = sub_generic;
+instruction_table[0x93] = sub_generic;
+instruction_table[0x94] = sub_generic;
+instruction_table[0x95] = sub_generic;
+instruction_table[0x96] = sub_generic;
+instruction_table[0x97] = sub_generic;
 
 // INR r
 instruction_table[0x04] = inr_generic;
@@ -76,6 +76,10 @@ instruction_table[0x00] = nop;
 
 // HLT
 instruction_table[0x76] = hlt;
+
+// ADI, ACI
+instruction_table[0xC6] = adi;
+instruction_table[0xCE] = aci;
 }
 
 void execute_instruction(CPU8080 *cpu, uint8_t opcode) {

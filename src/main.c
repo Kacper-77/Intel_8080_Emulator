@@ -1,5 +1,5 @@
 #include "cpu/cpu.h"
-#include "cpu/decoder.h"
+#include "decoder/decoder.h"
 #include <stdio.h>
 
 int main() {

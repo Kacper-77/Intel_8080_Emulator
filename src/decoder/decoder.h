@@ -1,5 +1,5 @@
 #pragma once
-#include "cpu.h"
+#include "../cpu/cpu.h"
 
 typedef void (*InstructionFunc)(uint8_t opcode, CPU8080 *cpu);
 

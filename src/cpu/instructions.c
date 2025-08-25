@@ -1,4 +1,5 @@
 #include "instructions.h"
+#include "../decoder/decoder.h"
 #include "stdint.h"
 #include "../utils/helpers.h"
 #include "stddef.h"
@@ -35,7 +36,8 @@ void add(uint8_t *reg, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
-void adi(CPU8080 *cpu) {
+void adi(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
     uint16_t result = cpu->A + value;
 
@@ -45,7 +47,8 @@ void adi(CPU8080 *cpu) {
     cpu->PC += 2;
 }
 
-void aci(CPU8080 *cpu) {
+void aci(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
     uint16_t result = cpu->A + value + cpu->flags.CY;
 
@@ -79,7 +82,7 @@ void inr(uint8_t *reg, CPU8080 *cpu) {
         result = before + 1;
         *reg = result;
     }
-    set_flags_after_inr_dcr(result, before, cpu, true);
+    update_flags_after_inr_dcr(result, before, cpu, true);
 
     cpu->PC += 1;
 }
@@ -97,7 +100,7 @@ void dcr(uint8_t *reg, CPU8080 *cpu) {
         result = before - 1;
         *reg = result;
     }
-    set_flags_after_inr_dcr(result, before, cpu, false);
+    update_flags_after_inr_dcr(result, before, cpu, false);
 
     cpu->PC += 1;
 }
@@ -155,4 +158,47 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t *reg = cpu->registers[reg_code];
 
     dcr(reg, cpu);
+}
+
+void lxi_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t low = cpu->memory[cpu->PC + 1];
+    uint8_t high = cpu->memory[cpu->PC + 2];
+    uint16_t value = (high << 8) | low;
+
+    switch (opcode) {
+        case 0x01:
+            cpu->C = low;
+            cpu->B = high;
+            break;
+        case 0x11:
+            cpu->C = low;
+            cpu->B = high;
+            break;
+        case 0x21:
+            cpu->C = low;
+            cpu->B = high;
+            break;
+        case 0x31:
+            cpu->SP = value;
+            break;
+    }
+    cpu->PC += 3;
+}
+
+void sub_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t reg_code = opcode & 0x07;
+    uint8_t value;
+
+    if (reg_code == 6) {
+        value = cpu->memory[(cpu->H << 8) | cpu->L];
+        custom_cycle = true;
+        cpu->cycles += 7;
+    } else {
+        value = *cpu->registers[reg_code];
+    }
+
+    uint8_t result = cpu->A - value;
+    update_flags_after_sub(cpu->A, value, cpu);
+    cpu->A = result;
+    cpu->PC += 1;
 }
