@@ -1,8 +1,10 @@
 #include "decoder.h"
-#include "instructions.h"
+#include "../cpu/cpu.h"
+#include "../cpu/instructions.h"
 #include <stdio.h>
 
 InstructionFunc instruction_table[256] = {0};
+bool custom_cycle = false;
 
 void init_instruction_table(void) {
     // MOV r,r'

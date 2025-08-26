@@ -9,7 +9,7 @@ set(SOURCES
     src/cpu/cpu.c
     src/cpu/instructions.c
     src/utils/helpers.c
-    src/cpu/decoder.c
+    src/decoder/decoder.c
 )
 
 add_executable(emulator8080 ${SOURCES})
