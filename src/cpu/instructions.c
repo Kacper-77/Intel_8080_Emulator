@@ -33,13 +33,37 @@ void aci(uint8_t opcode, CPU8080 *cpu) {
 
 void jmp(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
-    uint16_t addr = cpu->memory[cpu->PC + 1] | (cpu->memory[cpu->PC + 2] << 8);
+    uint16_t addr = (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
     cpu->PC = addr;
 }
 
 void hlt(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->halted = true;
+}
+
+void call(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t low = cpu->memory[cpu->PC + 1];
+    uint8_t high = cpu->memory[cpu->PC + 2];
+    uint16_t addr = (high << 8) | low;
+    uint16_t return_addr = cpu->PC + 3;
+
+    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;  // high
+    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;  // low
+    cpu->SP -= 2;
+
+    cpu->PC = addr;
+}
+
+void ret(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t low = cpu->memory[cpu->SP];
+    uint8_t high = cpu->memory[cpu->SP + 1];
+    uint16_t addr = (high << 8) | low;
+
+    cpu->SP += 2;
+    cpu->PC = addr;
 }
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu) {

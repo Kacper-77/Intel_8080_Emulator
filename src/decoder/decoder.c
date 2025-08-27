@@ -70,8 +70,8 @@ instruction_table[0x3D] = dcr_generic;
 
 // JMP, CALL, RET
 instruction_table[0xC3] = jmp;
-// instruction_table[0xCD] = call;
-// instruction_table[0xC9] = ret;
+instruction_table[0xCD] = call;
+instruction_table[0xC9] = ret;
 
 // NOP
 instruction_table[0x00] = nop;
