@@ -5,6 +5,14 @@
 #include "stddef.h"
 #include <stdio.h>
 
+static uint16_t fetch_addr(CPU8080 *cpu) {
+    return (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
+}
+
+static uint16_t read_M_addr(CPU8080 *cpu) {
+    return (cpu->H << 8) | cpu->L;
+}
+
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->PC += 1;
@@ -34,7 +42,7 @@ void aci(uint8_t opcode, CPU8080 *cpu) {
 
 void jmp(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
-    uint16_t addr = (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
+    uint16_t addr = fetch_addr(cpu);
     cpu->PC = addr;
 }
 
@@ -45,9 +53,7 @@ void hlt(uint8_t opcode, CPU8080 *cpu) {
 
 void call(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
-    uint8_t low = cpu->memory[cpu->PC + 1];
-    uint8_t high = cpu->memory[cpu->PC + 2];
-    uint16_t addr = (high << 8) | low;
+    uint16_t addr = fetch_addr(cpu);
     uint16_t return_addr = cpu->PC + 3;
 
     cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;  // high
@@ -70,7 +76,7 @@ void ret(uint8_t opcode, CPU8080 *cpu) {
 void mov_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t dest_code = (opcode >> 3) & 0x07;
     uint8_t src_code  = opcode & 0x07;
-    uint16_t addr = (cpu->H << 8) | cpu->L;
+    uint16_t addr = read_M_addr(cpu);
     
     if (dest_code == 6 && src_code != 6) {
         cpu->memory[addr] = *cpu->registers[src_code];
@@ -88,7 +94,8 @@ void mvi_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t data = cpu->memory[cpu->PC + 1];
 
     if (reg_code == 6) {
-        cpu->memory[(cpu->H << 8) | cpu->L] = data;
+        uint16_t addr = read_M_addr(cpu);
+        cpu->memory[addr] = data;
     } else {
         *cpu->registers[reg_code] = data;
     }
@@ -101,7 +108,8 @@ void add_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
     
     if (reg_code == 6) {
-        value = cpu->memory[(cpu->H << 8) | cpu->L];
+        uint16_t addr = read_M_addr(cpu);
+        value = cpu->memory[addr];
     } else {
         value = *cpu->registers[reg_code];
     }
@@ -118,7 +126,7 @@ void inr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = (opcode >> 3) & 0x07;
 
     if (reg_code == 6) {
-        uint16_t addr = (cpu->H << 8) | cpu->L;
+        uint16_t addr = read_M_addr(cpu);
         before = cpu->memory[addr];
         result = before + 1;
         cpu->memory[addr] = result;
@@ -136,7 +144,7 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = (opcode >> 3) & 0x07;
 
     if (reg_code == 6) {
-        uint16_t addr = (cpu->H << 8) | cpu->L;
+        uint16_t addr = read_M_addr(cpu);
         before = cpu->memory[addr];
         result = before - 1;
         cpu->memory[addr] = result;
@@ -152,7 +160,7 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
 void lxi_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t low = cpu->memory[cpu->PC + 1];
     uint8_t high = cpu->memory[cpu->PC + 2];
-    uint16_t value = (high << 8) | low;
+    uint16_t value = fetch_addr(cpu);
 
     switch (opcode) {
         case 0x01:
@@ -179,7 +187,8 @@ void sub_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value;
 
     if (reg_code == 6) {
-        value = cpu->memory[(cpu->H << 8) | cpu->L];
+        uint16_t addr = read_M_addr(cpu);
+        value = cpu->memory[addr];
         custom_cycle = true;
         cpu->cycles += 7;
     } else {
