@@ -3,6 +3,7 @@
 #include "stdint.h"
 #include "../utils/helpers.h"
 #include "stddef.h"
+#include <stdio.h>
 
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
@@ -97,7 +98,7 @@ void mvi_generic(uint8_t opcode, CPU8080 *cpu) {
 
 void add_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value;
-    uint8_t reg_code = (opcode >> 3) & 0x07;
+    uint8_t reg_code = opcode & 0x07;
     
     if (reg_code == 6) {
         value = cpu->memory[(cpu->H << 8) | cpu->L];
@@ -155,16 +156,16 @@ void lxi_generic(uint8_t opcode, CPU8080 *cpu) {
 
     switch (opcode) {
         case 0x01:
-            cpu->C = low;
             cpu->B = high;
+            cpu->C = low;
             break;
         case 0x11:
-            cpu->C = low;
-            cpu->B = high;
+            cpu->D = high;
+            cpu->E = low;
             break;
         case 0x21:
-            cpu->C = low;
-            cpu->B = high;
+            cpu->H = high;
+            cpu->L = low;
             break;
         case 0x31:
             cpu->SP = value;

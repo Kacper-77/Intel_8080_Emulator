@@ -20,6 +20,7 @@ int main() {
     cpu_emulate(&cpu);
 
     printf("A: %u\n", cpu.A);
+    printf("B = %u\n", cpu.B);
 
     return 0;
 }

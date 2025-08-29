@@ -3,83 +3,37 @@
 #include "../cpu/instructions.h"
 #include <stdio.h>
 
+#define SET_RANGE_OP(start, stop, func) do { \
+    for (int op = (start); op <= (stop); op++) { \
+        instruction_table[op] = (func); \
+    } \
+} while (0)
+
+#define SET_OP(func, ...) do { \
+    uint8_t ops[] = { __VA_ARGS__ }; \
+    for (int i = 0; i < sizeof(ops)/sizeof(ops[0]); i++) { \
+        instruction_table[ops[i]] = (func); \
+    } \
+} while (0)  // MOST READABLE CODE IN C 
+
 InstructionFunc instruction_table[256] = {0};
 bool custom_cycle = false;
 
 void init_instruction_table(void) {
-    // MOV r,r'
-for (uint8_t opcode = 0x40; opcode <= 0x7F; opcode++) {
-    instruction_table[opcode] = mov_generic;
-}
 
-// MVI r, data
-instruction_table[0x06] = mvi_generic; // MVI B
-instruction_table[0x0E] = mvi_generic; // MVI C
-instruction_table[0x16] = mvi_generic; // MVI D
-instruction_table[0x1E] = mvi_generic; // MVI E
-instruction_table[0x26] = mvi_generic; // MVI H
-instruction_table[0x2E] = mvi_generic; // MVI L
-instruction_table[0x36] = mvi_generic; // MVI M
-instruction_table[0x3E] = mvi_generic; // MVI A
+SET_RANGE_OP(0x40, 0x7F, mov_generic);
+SET_OP(mvi_generic, 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E);
+SET_OP(lxi_generic, 0x01, 0x11, 0x21, 0x31);
+SET_RANGE_OP(0x80, 0x87, add_generic);
+SET_RANGE_OP(0x90, 0x97, sub_generic);
+SET_OP(inr_generic, 0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x34, 0x3C);
+SET_OP(dcr_generic, 0x05, 0x0D, 0x15, 0x1D, 0x25, 0x2D, 0x35, 0x3D);
 
-// LXI rp, data16
-instruction_table[0x01] = lxi_generic; // LXI B
-instruction_table[0x11] = lxi_generic; // LXI D
-instruction_table[0x21] = lxi_generic; // LXI H
-instruction_table[0x31] = lxi_generic; // LXI SP
-
-// ADD r
-instruction_table[0x80] = add_generic; // ADD B
-instruction_table[0x81] = add_generic; // ADD C
-instruction_table[0x82] = add_generic; // ADD D
-instruction_table[0x83] = add_generic; // ADD E
-instruction_table[0x84] = add_generic; // ADD H
-instruction_table[0x85] = add_generic; // ADD L
-instruction_table[0x86] = add_generic; // ADD M
-instruction_table[0x87] = add_generic; // ADD A
-
-// SUB r
-instruction_table[0x90] = sub_generic;
-instruction_table[0x91] = sub_generic;
-instruction_table[0x92] = sub_generic;
-instruction_table[0x93] = sub_generic;
-instruction_table[0x94] = sub_generic;
-instruction_table[0x95] = sub_generic;
-instruction_table[0x96] = sub_generic;
-instruction_table[0x97] = sub_generic;
-
-// INR r
-instruction_table[0x04] = inr_generic;
-instruction_table[0x0C] = inr_generic;
-instruction_table[0x14] = inr_generic;
-instruction_table[0x1C] = inr_generic;
-instruction_table[0x24] = inr_generic;
-instruction_table[0x2C] = inr_generic;
-instruction_table[0x34] = inr_generic;
-instruction_table[0x3C] = inr_generic;
-
-// DCR r
-instruction_table[0x05] = dcr_generic;
-instruction_table[0x0D] = dcr_generic;
-instruction_table[0x15] = dcr_generic;
-instruction_table[0x1D] = dcr_generic;
-instruction_table[0x25] = dcr_generic;
-instruction_table[0x2D] = dcr_generic;
-instruction_table[0x35] = dcr_generic;
-instruction_table[0x3D] = dcr_generic;
-
-// JMP, CALL, RET
+instruction_table[0x00] = nop;
+instruction_table[0x76] = hlt;
 instruction_table[0xC3] = jmp;
 instruction_table[0xCD] = call;
 instruction_table[0xC9] = ret;
-
-// NOP
-instruction_table[0x00] = nop;
-
-// HLT
-instruction_table[0x76] = hlt;
-
-// ADI, ACI
 instruction_table[0xC6] = adi;
 instruction_table[0xCE] = aci;
 }
