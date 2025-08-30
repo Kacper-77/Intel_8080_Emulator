@@ -43,7 +43,7 @@ void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
     if (instruction_table[opcode]) {
         instruction_table[opcode](opcode, cpu);
         if (!custom_cycle) {
-            cpu->cycles += cpu->t_states[opcode];
+            cpu->cycles += t_states[opcode];
         }
     } else {
         printf("Unknown opcode: 0x%02X\n", opcode);

@@ -5,7 +5,7 @@
 #include <string.h>
 
 
-static const uint8_t t_states[256] = {
+const uint8_t t_states[256] = {
     4, 10, 7, 5, 5, 7, 7, 4, 4, 10, 7, 5, 5, 7, 4, 4,             // 0x00 - 0x0F
     4, 10, 7, 5, 5, 7, 4, 4, 4, 10, 7, 5, 5, 7, 4, 4,             // 0x10 - 0x1F
     4, 10, 7, 5, 5, 7, 4, 4, 4, 10, 7, 5, 5, 7, 4, 4,             // 0x20 - 0x2F
@@ -38,8 +38,6 @@ void cpu_init(CPU8080 *cpu) {
     cpu->registers[5] = &cpu->L;
     cpu->registers[6] = NULL;
     cpu->registers[7] = &cpu->A;
-
-    memcpy(cpu->t_states, t_states, sizeof(t_states));
 }
 
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr) {
