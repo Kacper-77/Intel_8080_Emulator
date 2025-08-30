@@ -47,7 +47,8 @@ void jmp(uint8_t opcode, CPU8080 *cpu) {
 }
 
 void hlt(uint8_t opcode, CPU8080 *cpu) {
-    (void)opcode;
+    custom_cycle = true;
+    cpu->cycles += cpu->t_states[opcode];
     cpu->halted = true;
 }
 

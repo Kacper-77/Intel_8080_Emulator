@@ -28,10 +28,10 @@ typedef struct {
 
     bool halted;
 
+    uint8_t t_states[256];
+
 } CPU8080;
 
 void cpu_init(CPU8080 *cpu);
 void cpu_emulate(CPU8080 *cpu);
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr);
-
-extern const uint8_t t_states[256];
