@@ -8,6 +8,8 @@ void jmp(uint8_t opcode, CPU8080 *cpu);
 void hlt(uint8_t opcode, CPU8080 *cpu);
 void call(uint8_t opcode, CPU8080 *cpu);
 void ret(uint8_t opcode, CPU8080 *cpu);
+void ei(uint8_t opcode, CPU8080 *cpu);
+void di(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);
@@ -16,3 +18,4 @@ void inr_generic(uint8_t opcode, CPU8080 *cpu);
 void dcr_generic(uint8_t opcode, CPU8080 *cpu);
 void lxi_generic(uint8_t opcode, CPU8080 *cpu);
 void sub_generic(uint8_t opcode, CPU8080 *cpu);
+void rst_generic(uint8_t opcode, CPU8080 *cpu);

@@ -201,3 +201,25 @@ void sub_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->A = result;
     cpu->PC += 1;
 }
+
+void ei(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    cpu->interrupt_enabled = true;
+    cpu->PC += 1;
+}
+
+void di(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    cpu->interrupt_enabled = false;
+    cpu->PC += 1;
+}
+
+void rst_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t return_addr = cpu->PC + 1;
+    cpu->memory[cpu->SP - 1] = (return_addr >> 3) & 0x07;
+    cpu->memory[cpu->SP - 2] = return_addr & 0x07;
+    cpu->SP -= 2;
+
+    uint8_t value = (opcode >> 3) & 0x07;
+    cpu->PC = value * 8;
+}

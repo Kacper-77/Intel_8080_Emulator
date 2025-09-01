@@ -21,7 +21,7 @@ const uint8_t t_states[256] = {
     5, 10, 10, 10, 10, 11, 11, 11, 5, 10, 10, 10, 10, 11, 11, 11, // 0xC0 - 0xCF
     5, 10, 10, 10, 10, 11, 11, 11, 5, 10, 10, 10, 10, 11, 11, 11, // 0xD0 - 0xDF
     5, 10, 10, 10, 18, 11, 11, 11, 5, 10, 10, 10, 10, 11, 11, 11, // 0xE0 - 0xEF
-    5, 10, 10, 10, 10, 11, 11, 11, 5, 10, 10, 10, 10, 11, 11, 11  // 0xF0 - 0xFF
+    5, 10, 10, 4, 11, 11, 7, 11, 5, 5, 10, 4, 11, 11, 7, 11       // 0xF0 - 0xFF
 };
 
 void cpu_init(CPU8080 *cpu) {
@@ -29,6 +29,9 @@ void cpu_init(CPU8080 *cpu) {
     cpu->SP = 0xFFFF;
     cpu->PC = 0x0000;
     cpu->halted = false;
+    cpu->interrupt_enabled = false;
+    cpu->pending_interrupt = false;
+    cpu->interrupt_opcode = 0x00;
 
     cpu->registers[0] = &cpu->B;
     cpu->registers[1] = &cpu->C;
@@ -45,10 +48,25 @@ void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint1
     cpu->PC = load_addr;
 }
 
-void cpu_emulate(CPU8080 *cpu) {
-    while (!cpu->halted) {
-        uint8_t opcode = cpu->memory[cpu->PC];
-        printf("PC: 0x%04X, Opcode: 0x%02X, Cycles: %llu\n", cpu->PC, opcode, cpu->cycles);
+bool cpu_emulate(CPU8080 *cpu) {
+    if (cpu->halted) return false;
+
+    if (cpu->pending_interrupt && cpu->interrupt_enabled) {
+        cpu->interrupt_enabled = false;
+        cpu->pending_interrupt = false;
+        uint8_t opcode = cpu->interrupt_opcode;
         execute_instruction(cpu, opcode);
+    }
+
+    uint8_t opcode = cpu->memory[cpu->PC];
+    printf("PC: 0x%04X, Opcode: 0x%02X, Cycles: %llu\n", cpu->PC, opcode, cpu->cycles);
+    execute_instruction(cpu, opcode);
+    return true;
+}
+
+void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode) {
+    if (cpu->interrupt_enabled) {
+        cpu->pending_interrupt = true;
+        cpu->interrupt_opcode = rst_opcode;
     }
 }

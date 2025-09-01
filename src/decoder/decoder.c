@@ -14,7 +14,7 @@
     for (int i = 0; i < sizeof(ops)/sizeof(ops[0]); i++) { \
         instruction_table[ops[i]] = (func); \
     } \
-} while (0)  // MOST READABLE CODE IN C 
+} while (0)
 
 InstructionFunc instruction_table[256] = {0};
 bool custom_cycle = false;
@@ -28,6 +28,7 @@ SET_RANGE_OP(0x80, 0x87, add_generic);
 SET_RANGE_OP(0x90, 0x97, sub_generic);
 SET_OP(inr_generic, 0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x34, 0x3C);
 SET_OP(dcr_generic, 0x05, 0x0D, 0x15, 0x1D, 0x25, 0x2D, 0x35, 0x3D);
+SET_OP(rst_generic, 0xC7, 0xCF, 0xD7, 0xDF, 0xE7, 0xEF, 0xF7, 0xFF);
 
 instruction_table[0x00] = nop;
 instruction_table[0x76] = hlt;
@@ -36,6 +37,8 @@ instruction_table[0xCD] = call;
 instruction_table[0xC9] = ret;
 instruction_table[0xC6] = adi;
 instruction_table[0xCE] = aci;
+instruction_table[0xFB] = ei;
+instruction_table[0xF3] = di;
 }
 
 void execute_instruction(CPU8080 *cpu, uint8_t opcode) {

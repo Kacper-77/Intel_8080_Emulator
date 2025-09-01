@@ -21,6 +21,10 @@ typedef struct {
         bool AC;
     } flags;
 
+    bool interrupt_enabled;  // EI AND DI
+    bool pending_interrupt;
+    uint8_t interrupt_opcode;
+
     // 64KB memory
     uint8_t memory[0x10000];
 
@@ -31,6 +35,7 @@ typedef struct {
 } CPU8080;
 
 void cpu_init(CPU8080 *cpu);
-void cpu_emulate(CPU8080 *cpu);
+bool cpu_emulate(CPU8080 *cpu);
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr);
 extern const uint8_t t_states[256];
+void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode);
