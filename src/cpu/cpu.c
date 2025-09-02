@@ -55,7 +55,9 @@ bool cpu_emulate(CPU8080 *cpu) {
         cpu->interrupt_enabled = false;
         cpu->pending_interrupt = false;
         uint8_t opcode = cpu->interrupt_opcode;
+        printf("Interrupted here, opcode: 0x%02X\n", opcode);
         execute_instruction(cpu, opcode);
+        return true;
     }
 
     uint8_t opcode = cpu->memory[cpu->PC];
