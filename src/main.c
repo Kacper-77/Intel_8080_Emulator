@@ -11,6 +11,7 @@ int main() {
     uint8_t program[] = {
         0xFB,       // EI
         // 0xF3,
+        // 0xEF,
         0x3E, 0x05, // MVI A, 
         0x06, 0x0A, // MVI B,
         0x80,       // ADD B

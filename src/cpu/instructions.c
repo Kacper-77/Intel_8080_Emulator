@@ -13,6 +13,12 @@ static uint16_t read_M_addr(CPU8080 *cpu) {
     return (cpu->H << 8) | cpu->L;
 }
 
+static void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
+    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
+    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
+    cpu->SP -= 2;
+}
+
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->PC += 1;
@@ -57,9 +63,7 @@ void call(uint8_t opcode, CPU8080 *cpu) {
     uint16_t addr = fetch_addr(cpu);
     uint16_t return_addr = cpu->PC + 3;
 
-    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;  // high
-    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;  // low
-    cpu->SP -= 2;
+    set_return_addr(return_addr, cpu);
 
     cpu->PC = addr;
 }
@@ -159,22 +163,20 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
 }
 
 void lxi_generic(uint8_t opcode, CPU8080 *cpu) {
-    uint8_t low = cpu->memory[cpu->PC + 1];
-    uint8_t high = cpu->memory[cpu->PC + 2];
     uint16_t value = fetch_addr(cpu);
 
     switch (opcode) {
         case 0x01:
-            cpu->B = high;
-            cpu->C = low;
+            cpu->B = value >> 8;
+            cpu->C = value & 0xFF;
             break;
         case 0x11:
-            cpu->D = high;
-            cpu->E = low;
+            cpu->D = value >> 8;
+            cpu->E = value & 0xFF;
             break;
         case 0x21:
-            cpu->H = high;
-            cpu->L = low;
+            cpu->H = value >> 8;
+            cpu->L = value & 0xFF;
             break;
         case 0x31:
             cpu->SP = value;
@@ -216,9 +218,7 @@ void di(uint8_t opcode, CPU8080 *cpu) {
 
 void rst_generic(uint8_t opcode, CPU8080 *cpu) {
     uint16_t return_addr = cpu->PC + (cpu->is_interrupt ? 0 : 1);
-    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
-    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
-    cpu->SP -= 2;
+    set_return_addr(return_addr, cpu);
 
     uint8_t value = (opcode >> 3) & 0x07;
     cpu->PC = value * 8;
