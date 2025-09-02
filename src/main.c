@@ -23,8 +23,14 @@ int main() {
         0xC9        // RET
     };
 
+    uint8_t trap_handler[] = {
+    0x3E, 0xF1,     // MVI A, 0xFF
+    0xC9            // RET
+};
+
     cpu_load_program(&cpu, program, sizeof(program), 0x0000);
     memcpy(&cpu.memory[0x28], interrupt_handler, sizeof(interrupt_handler));
+    memcpy(&cpu.memory[0x24], trap_handler, sizeof(trap_handler));
 
     bool interrupt_triggered = false;
 
@@ -32,6 +38,11 @@ int main() {
         if (cpu.cycles > 20 && !interrupt_triggered) {
             request_interrupt(&cpu, 0xEF);
             interrupt_triggered = true;
+        }
+
+        if (cpu.cycles == 50) {
+            trigger_trap(&cpu);
+            printf("TRAP HERE\n");
         }
     }
     

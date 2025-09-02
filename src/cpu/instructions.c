@@ -215,9 +215,9 @@ void di(uint8_t opcode, CPU8080 *cpu) {
 }
 
 void rst_generic(uint8_t opcode, CPU8080 *cpu) {
-    uint16_t return_addr = cpu->PC + 1;
-    cpu->memory[cpu->SP - 1] = (return_addr >> 3) & 0x07;
-    cpu->memory[cpu->SP - 2] = return_addr & 0x07;
+    uint16_t return_addr = cpu->PC + (cpu->is_interrupt ? 0 : 1);
+    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
+    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
     cpu->SP -= 2;
 
     uint8_t value = (opcode >> 3) & 0x07;

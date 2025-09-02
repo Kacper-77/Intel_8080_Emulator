@@ -32,6 +32,7 @@ void cpu_init(CPU8080 *cpu) {
     cpu->interrupt_enabled = false;
     cpu->pending_interrupt = false;
     cpu->interrupt_opcode = 0x00;
+    cpu->is_interrupt = false;
 
     cpu->registers[0] = &cpu->B;
     cpu->registers[1] = &cpu->C;
@@ -57,6 +58,7 @@ bool cpu_emulate(CPU8080 *cpu) {
         uint8_t opcode = cpu->interrupt_opcode;
         printf("Interrupted here, opcode: 0x%02X\n", opcode);
         execute_instruction(cpu, opcode);
+        cpu->is_interrupt = false;
         return true;
     }
 
@@ -66,9 +68,31 @@ bool cpu_emulate(CPU8080 *cpu) {
     return true;
 }
 
+void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
+    custom_cycle = false;
+    if (instruction_table[opcode]) {
+        instruction_table[opcode](opcode, cpu);
+        if (!custom_cycle) {
+            cpu->cycles += t_states[opcode];
+        }
+    } else {
+        printf("Unknown opcode: 0x%02X\n", opcode);
+    }
+}
+
 void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode) {
     if (cpu->interrupt_enabled) {
         cpu->pending_interrupt = true;
         cpu->interrupt_opcode = rst_opcode;
+        cpu->is_interrupt = true;
     }
+}
+
+void trigger_trap(CPU8080 *cpu) {
+    uint16_t return_addr = cpu->PC;
+
+    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
+    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
+    cpu->SP -= 2;
+    cpu->PC = 0x24;
 }
