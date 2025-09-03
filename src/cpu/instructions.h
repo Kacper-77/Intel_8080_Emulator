@@ -19,3 +19,5 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu);
 void lxi_generic(uint8_t opcode, CPU8080 *cpu);
 void sub_generic(uint8_t opcode, CPU8080 *cpu);
 void rst_generic(uint8_t opcode, CPU8080 *cpu);
+void push_generic(uint8_t opcode, CPU8080 *cpu);
+void pop_generic(uint8_t opcode, CPU8080 *cpu);

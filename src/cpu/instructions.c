@@ -223,3 +223,56 @@ void rst_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value = (opcode >> 3) & 0x07;
     cpu->PC = value * 8;
 }
+
+void push_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t flags_byte =
+    (cpu->flags.S  << 7) |
+    (cpu->flags.Z  << 6) |
+    (cpu->flags.AC << 4) |
+    (cpu->flags.P  << 2) |
+    (1 << 1) |
+    (cpu->flags.CY << 0);
+
+    switch (opcode) {
+        case 0xC5:
+            cpu->memory[cpu->SP - 1] = cpu->B;
+            cpu->memory[cpu->SP - 2] = cpu->C;
+            break;
+        case 0xD5:
+            cpu->memory[cpu->SP - 1] = cpu->D;
+            cpu->memory[cpu->SP - 2] = cpu->E;
+            break;
+        case 0xE5:
+            cpu->memory[cpu->SP - 1] = cpu->H;
+            cpu->memory[cpu->SP - 2] = cpu->L;
+            break;
+        case 0xF5:
+            cpu->memory[cpu->SP - 1] = cpu->A;
+            cpu->memory[cpu->SP - 2] = flags_byte;
+            break;
+    }
+    cpu->SP -= 2;
+    cpu->PC += 1;
+}
+
+void pop_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t low = cpu->memory[cpu->SP];
+    uint8_t high = cpu->memory[cpu->SP + 1];
+    cpu->SP += 2;
+
+    switch (opcode) {
+        case 0xC1: cpu->C = low; cpu->B = high; break;
+        case 0xD1: cpu->E = low; cpu->D = high; break;
+        case 0xE1: cpu->L = low; cpu->H = high; break;
+
+        case 0xF1:
+            cpu->A = high;
+            cpu->flags.S  = (low >> 7) & 1;
+            cpu->flags.Z  = (low >> 6) & 1;
+            cpu->flags.AC = (low >> 4) & 1;
+            cpu->flags.P  = (low >> 2) & 1;
+            cpu->flags.CY = (low >> 0) & 1;
+            break;
+    }
+    cpu->PC += 1;
+}
