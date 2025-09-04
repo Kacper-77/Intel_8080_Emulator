@@ -4,7 +4,7 @@
 
 void update_flags_after_add(uint16_t result, uint8_t operand, CPU8080 *cpu, bool include_cy);
 void update_flags_after_inr_dcr(uint8_t result, uint8_t previous, CPU8080 *cpu, bool is_increment);
-void update_flags_after_sub(uint16_t a, uint8_t value, CPU8080 *cpu);
+void update_flags_after_sub(uint16_t a, uint8_t value, uint8_t borrow, CPU8080 *cpu);
 
 bool is_zero(CPU8080 *cpu);
 bool is_sign(CPU8080 *cpu);

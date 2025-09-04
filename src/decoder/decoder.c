@@ -31,6 +31,7 @@ void init_instruction_table(void) {
     SET_OP(rst_generic, 0xC7, 0xCF, 0xD7, 0xDF, 0xE7, 0xEF, 0xF7, 0xFF);
     SET_OP(push_generic, 0xC5, 0xD5, 0xE5, 0xF5);
     SET_OP(pop_generic, 0xC1, 0xD1, 0xE1, 0xF1);
+    SET_RANGE_OP(0xB8, 0xBF, cmp_generic);
 
     instruction_table[0x00] = nop;
     instruction_table[0x76] = hlt;
@@ -41,4 +42,7 @@ void init_instruction_table(void) {
     instruction_table[0xCE] = aci;
     instruction_table[0xFB] = ei;
     instruction_table[0xF3] = di;
+    instruction_table[0xD6] = sui;
+    instruction_table[0xDE] = sbi;
+    instruction_table[0xFE] = cpi;
 }

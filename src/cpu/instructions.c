@@ -199,7 +199,7 @@ void sub_generic(uint8_t opcode, CPU8080 *cpu) {
     }
 
     uint8_t result = cpu->A - value;
-    update_flags_after_sub(cpu->A, value, cpu);
+    update_flags_after_sub(cpu->A, value, 0,cpu);
     cpu->A = result;
     cpu->PC += 1;
 }
@@ -275,4 +275,44 @@ void pop_generic(uint8_t opcode, CPU8080 *cpu) {
             break;
     }
     cpu->PC += 1;
+}
+
+void sui(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t value = cpu->memory[cpu->PC + 1];
+
+    uint8_t result = cpu->A - value;
+    update_flags_after_sub(cpu->A, value, 0, cpu);
+    
+    cpu->A = result;
+    cpu->PC += 2;
+}
+
+void sbi(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t value = cpu->memory[cpu->PC + 1];
+
+    uint8_t result = cpu->A - value - cpu->flags.CY;
+    update_flags_after_sub(cpu->A, value, cpu->flags.CY, cpu);
+
+    cpu->A = result;
+    cpu->PC += 2;
+}
+
+void cmp_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t reg_code = opcode & 0x07;
+    uint8_t value = (reg_code == 6)
+                    ? cpu->memory[read_M_addr(cpu)]
+                    : *cpu->registers[reg_code];
+    
+    update_flags_after_sub(cpu->A, value, 0, cpu);
+    cpu->PC += 1;
+}
+
+void cpi(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t value = cpu->memory[cpu->PC + 1];
+
+    update_flags_after_sub(cpu->A, value, 0, cpu);
+    cpu->PC += 2;
 }
