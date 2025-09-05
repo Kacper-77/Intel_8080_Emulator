@@ -32,6 +32,7 @@ void init_instruction_table(void) {
     SET_OP(push_generic, 0xC5, 0xD5, 0xE5, 0xF5);
     SET_OP(pop_generic, 0xC1, 0xD1, 0xE1, 0xF1);
     SET_RANGE_OP(0xB8, 0xBF, cmp_generic);
+    SET_OP(dad_generic, 0x09, 0x19, 0x29, 0x39);
 
     instruction_table[0x00] = nop;
     instruction_table[0x76] = hlt;

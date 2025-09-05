@@ -316,3 +316,21 @@ void cpi(uint8_t opcode, CPU8080 *cpu) {
     update_flags_after_sub(cpu->A, value, 0, cpu);
     cpu->PC += 2;
 }
+
+void dad_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t HL = read_M_addr(cpu);
+    uint16_t value;
+
+    switch (opcode) {
+        case 0x09: value = (cpu->B << 8) | cpu->C; break;
+        case 0x19: value = (cpu->D << 8) | cpu->E; break;
+        case 0x29: value = HL; break;
+        case 0x39: value = cpu->SP; break;
+    }
+
+    uint32_t result = HL + value;
+    cpu->H = (result >> 8) & 0xFF;
+    cpu->L = result & 0xFF;
+    cpu->flags.CY = (result > 0xFFFF);
+    cpu->PC += 1;
+}

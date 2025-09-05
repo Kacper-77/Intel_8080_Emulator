@@ -25,3 +25,4 @@ void rst_generic(uint8_t opcode, CPU8080 *cpu);
 void push_generic(uint8_t opcode, CPU8080 *cpu);
 void pop_generic(uint8_t opcode, CPU8080 *cpu);
 void cmp_generic(uint8_t opcode, CPU8080 *cpu);
+void dad_generic(uint8_t opcode, CPU8080 *cpu);
