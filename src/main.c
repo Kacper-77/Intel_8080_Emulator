@@ -18,7 +18,11 @@ int main() {
         0x06, 0x0A, // MVI B
         0x80,       // ADD B
         0x00,       // NOP
-        0x76        // HLT
+        
+        0x21, 0x34, 0x12, // LXI H, 0x1234
+        0x11, 0x11, 0x11, // LXI D, 0x1111
+        0x19,             // DAD D
+        0x76              // HLT
     };
 
     uint8_t interrupt_handler[] = {
@@ -55,6 +59,11 @@ int main() {
     printf("A: %u\n", cpu.A);
     printf("B: %u\n", cpu.B);
     printf("Cycles sum: %llu\n", cpu.cycles);
+
+    printf("H: %02X\n", cpu.H);
+    printf("L: %02X\n", cpu.L);
+    printf("HL: %04X\n", (cpu.H << 8) | cpu.L);
+    printf("CY: %u\n", cpu.flags.CY);
 
     return 0;
 }

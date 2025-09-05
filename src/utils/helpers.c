@@ -41,7 +41,11 @@ void update_flags_after_sub(uint16_t a, uint8_t value, uint8_t borrow, CPU8080 *
     cpu->flags.AC = ((a & 0x0F) < ((value + borrow) & 0x0F));
 }
 
-bool is_zero(CPU8080 *cpu) { return cpu->flags.Z == 1; }
-bool is_sign(CPU8080 *cpu) { return cpu->flags.S == 1; }
-bool is_carry(CPU8080 *cpu) { return cpu->flags.CY == 1; }
-bool is_parity(CPU8080 *cpu) { return cpu->flags.P == 1; }
+uint16_t get_rpair(uint8_t high, uint8_t low) {
+    return (high << 8) | low;
+}
+
+void set_rpair(uint8_t value, uint8_t *high, uint8_t *low) {
+    *high = (value >> 8) & 0xFF;
+    *low = value & 0xFF;
+}

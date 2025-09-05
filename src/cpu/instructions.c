@@ -19,6 +19,8 @@ static void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
     cpu->SP -= 2;
 }
 
+/////////////////////////////////////////////////////////////////////////
+
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->PC += 1;
@@ -332,5 +334,57 @@ void dad_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->H = (result >> 8) & 0xFF;
     cpu->L = result & 0xFF;
     cpu->flags.CY = (result > 0xFFFF);
+    cpu->PC += 1;
+}
+
+void inx_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t value;
+
+    switch (opcode) {
+        case 0x03:
+            value = get_rpair(cpu->B, cpu->C);
+            value++;
+            set_rpair(value, &cpu->B, &cpu->C);
+            break;
+        case 0x13:
+            value = get_rpair(cpu->D, cpu->E);
+            value++;
+            set_rpair(value, &cpu->D, &cpu->E);
+            break;
+        case 0x23:
+            value = get_rpair(cpu->H, cpu->L);
+            value++;
+            set_rpair(value, &cpu->H, &cpu->L);
+            break;
+        case 0x33:
+            cpu->SP++;
+            break;
+    }
+    cpu->PC += 1;
+}
+
+void dcx_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t value;
+
+    switch (opcode) {
+        case 0x0B:
+            value = get_rpair(cpu->B, cpu->C);
+            value--;
+            set_rpair(value, &cpu->B, &cpu->C);
+            break;
+        case 0x1B:
+            value = get_rpair(cpu->D, cpu->E);
+            value--;
+            set_rpair(value, &cpu->D, &cpu->E);
+            break;
+        case 0x2B:
+            value = get_rpair(cpu->H, cpu->L);
+            value--;
+            set_rpair(value, &cpu->H, &cpu->L);
+            break;
+        case 0x3B:
+            cpu->SP--;
+            break;
+    }
     cpu->PC += 1;
 }
