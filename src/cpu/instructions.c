@@ -438,3 +438,30 @@ void ori(uint8_t opcode, CPU8080 *cpu) {
     update_flags_logical(result, cpu, true);
     cpu->PC += 2;
 }
+
+void xra_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t reg_code = opcode & 0x07;
+    uint8_t value;
+
+    if (reg_code == 6) {
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
+        value = cpu->memory[addr];
+    } else {
+        value = *cpu->registers[reg_code];
+    }
+
+    uint16_t result = cpu->A ^ value;
+    cpu->A = result & 0xFF;
+    update_flags_logical(result, cpu, true);
+    cpu->PC += 1;
+}
+
+void xri(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t value = cpu->memory[cpu->PC + 1];
+
+    uint16_t result = cpu->A ^ value;
+    cpu->A = result & 0xFF;
+    update_flags_logical(result, cpu, true);
+    cpu->PC += 2;
+}
