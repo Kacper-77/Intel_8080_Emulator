@@ -41,6 +41,14 @@ void update_flags_after_sub(uint16_t a, uint8_t value, uint8_t borrow, CPU8080 *
     cpu->flags.AC = ((a & 0x0F) < ((value + borrow) & 0x0F));
 }
 
+void update_flags_logical(uint16_t result, CPU8080 *cpu, bool is_ani) {
+    cpu->flags.Z  = ((result & 0xFF) == 0);
+    cpu->flags.S  = (result & 0x80) != 0;
+    cpu->flags.P  = __builtin_parity(result & 0xFF) == 0;
+    cpu->flags.CY = 0;
+    cpu->flags.AC = is_ani ? 0 : 1;
+}
+
 uint16_t get_rpair(uint8_t high, uint8_t low) {
     return (high << 8) | low;
 }
