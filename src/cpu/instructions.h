@@ -14,6 +14,7 @@ void sui(uint8_t opcode, CPU8080 *cpu);
 void sbi(uint8_t opcode, CPU8080 *cpu);
 void cpi(uint8_t opcode, CPU8080 *cpu);
 void ani(uint8_t opcode, CPU8080 *cpu);
+void ori(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);
@@ -30,3 +31,4 @@ void dad_generic(uint8_t opcode, CPU8080 *cpu);
 void inx_generic(uint8_t opcode, CPU8080 *cpu);
 void dcx_generic(uint8_t opcode, CPU8080 *cpu);
 void ana_generic(uint8_t opcode, CPU8080 *cpu);
+void ora_generic(uint8_t opcode, CPU8080 *cpu);

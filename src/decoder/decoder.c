@@ -36,6 +36,7 @@ void init_instruction_table(void) {
     SET_OP(inx_generic, 0x03, 0x13, 0x23, 0x33);
     SET_OP(dcx_generic, 0x0B, 0x1B, 0x2B, 0x3B);
     SET_RANGE_OP(0xA0, 0xA7, ana_generic);
+    SET_RANGE_OP(0xB0, 0xB7, ora_generic);
 
     instruction_table[0x00] = nop;
     instruction_table[0x76] = hlt;
@@ -50,4 +51,5 @@ void init_instruction_table(void) {
     instruction_table[0xDE] = sbi;
     instruction_table[0xFE] = cpi;
     instruction_table[0xE6] = ani;
+    instruction_table[0xF6] = ori;
 }

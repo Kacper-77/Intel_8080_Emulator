@@ -9,10 +9,6 @@ static uint16_t fetch_addr(CPU8080 *cpu) {
     return (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
 }
 
-static uint16_t read_M_addr(CPU8080 *cpu) {
-    return (cpu->H << 8) | cpu->L;
-}
-
 static void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
     cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
     cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
@@ -83,7 +79,7 @@ void ret(uint8_t opcode, CPU8080 *cpu) {
 void mov_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t dest_code = (opcode >> 3) & 0x07;
     uint8_t src_code  = opcode & 0x07;
-    uint16_t addr = read_M_addr(cpu);
+    uint16_t addr = get_rpair(cpu->H, cpu->L);
     
     if (dest_code == 6 && src_code != 6) {
         cpu->memory[addr] = *cpu->registers[src_code];
@@ -101,7 +97,7 @@ void mvi_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t data = cpu->memory[cpu->PC + 1];
 
     if (reg_code == 6) {
-        uint16_t addr = read_M_addr(cpu);
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
         cpu->memory[addr] = data;
     } else {
         *cpu->registers[reg_code] = data;
@@ -115,7 +111,7 @@ void add_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
     
     if (reg_code == 6) {
-        uint16_t addr = read_M_addr(cpu);
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
         value = cpu->memory[addr];
     } else {
         value = *cpu->registers[reg_code];
@@ -133,7 +129,7 @@ void inr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = (opcode >> 3) & 0x07;
 
     if (reg_code == 6) {
-        uint16_t addr = read_M_addr(cpu);
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
         before = cpu->memory[addr];
         result = before + 1;
         cpu->memory[addr] = result;
@@ -151,7 +147,7 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = (opcode >> 3) & 0x07;
 
     if (reg_code == 6) {
-        uint16_t addr = read_M_addr(cpu);
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
         before = cpu->memory[addr];
         result = before - 1;
         cpu->memory[addr] = result;
@@ -192,7 +188,7 @@ void sub_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value;
 
     if (reg_code == 6) {
-        uint16_t addr = read_M_addr(cpu);
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
         value = cpu->memory[addr];
         custom_cycle = true;
         cpu->cycles += 7;
@@ -304,7 +300,7 @@ void sbi(uint8_t opcode, CPU8080 *cpu) {
 void cmp_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
     uint8_t value = (reg_code == 6)
-                    ? cpu->memory[read_M_addr(cpu)]
+                    ? cpu->memory[get_rpair(cpu->H, cpu->L)]
                     : *cpu->registers[reg_code];
     
     update_flags_after_sub(cpu->A, value, 0, cpu);
@@ -320,7 +316,7 @@ void cpi(uint8_t opcode, CPU8080 *cpu) {
 }
 
 void dad_generic(uint8_t opcode, CPU8080 *cpu) {
-    uint16_t HL = read_M_addr(cpu);
+    uint16_t HL = get_rpair(cpu->H, cpu->L);
     uint16_t value;
 
     switch (opcode) {
@@ -411,6 +407,33 @@ void ani(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value = cpu->memory[cpu->PC + 1];
 
     uint16_t result = cpu->A & value;
+    cpu->A = result & 0xFF;
+    update_flags_logical(result, cpu, true);
+    cpu->PC += 2;
+}
+
+void ora_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint8_t reg_code = opcode & 0x07;
+    uint8_t value;
+
+    if (reg_code == 6) {
+        uint16_t addr = get_rpair(cpu->H, cpu->L);
+        value = cpu->memory[addr];
+    } else {
+        value = *cpu->registers[reg_code];
+    }
+
+    uint16_t result = cpu->A | value;
+    cpu->A = result & 0xFF;
+    update_flags_logical(result, cpu, true);
+    cpu->PC += 1;
+}
+
+void ori(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t value = cpu->memory[cpu->PC + 1];
+
+    uint16_t result = cpu->A | value;
     cpu->A = result & 0xFF;
     update_flags_logical(result, cpu, true);
     cpu->PC += 2;
