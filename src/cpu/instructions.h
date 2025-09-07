@@ -20,6 +20,7 @@ void rrc(uint8_t opcode, CPU8080 *cpu);
 void rlc(uint8_t opcode, CPU8080 *cpu);
 void rar(uint8_t opcode, CPU8080 *cpu);
 void ral(uint8_t opcode, CPU8080 *cpu);
+void daa(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);

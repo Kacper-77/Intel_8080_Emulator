@@ -1,6 +1,6 @@
 #include "helpers.h"
 
-static uint8_t my_parity(uint8_t value) {
+uint8_t my_parity(uint8_t value) {
     value ^= value >> 4;
     value ^= value >> 2;
     value ^= value >> 1;
@@ -26,7 +26,7 @@ void update_flags_after_inr_dcr(uint8_t result, uint8_t previous ,CPU8080 *cpu, 
     cpu->flags.S  = (result & 0x80) != 0;
     cpu->flags.P  = my_parity(result & 0xFF);
     if (is_increment) {
-        cpu->flags.AC = ((previous & 0x0F) + 1) > 0xF;
+        cpu->flags.AC = ((previous & 0x0F) + 1) > 0x0F;
     } else {
         cpu->flags.AC = ((previous & 0x0F) - 1) < 0;
     }

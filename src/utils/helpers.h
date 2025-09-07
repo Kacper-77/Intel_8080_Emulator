@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 #include <stdbool.h>
 #include "../cpu/cpu.h"
@@ -9,3 +10,4 @@ void update_flags_logical(uint16_t result, CPU8080 *cpu, bool cleared);
 
 uint16_t get_rpair(uint8_t high, uint8_t low);
 void set_rpair(uint8_t value, uint8_t *high, uint8_t *low);
+uint8_t my_parity(uint8_t value);

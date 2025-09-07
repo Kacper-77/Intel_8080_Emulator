@@ -58,4 +58,5 @@ void init_instruction_table(void) {
     instruction_table[0x07] = rlc;
     instruction_table[0x37] = rar;
     instruction_table[0x21] = ral;
+    instruction_table[0x27] = daa;
 }

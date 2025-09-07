@@ -507,3 +507,26 @@ void ral(uint8_t opcode, CPU8080 *cpu) {
 
     cpu->PC += 1;
 }
+
+void daa(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t correction = 0;
+
+    if ((cpu->A & 0x0F) > 9 || cpu->flags.AC) {
+        correction = 0x06;
+    } 
+    if ((cpu->A >> 4) > 9 || cpu->flags.CY || (cpu->A + correction > 0x99)) {
+        correction = 0x60;
+    }
+
+    uint16_t result = cpu->A + correction;
+
+    cpu->flags.Z  = ((result & 0xFF) == 0);
+    cpu->flags.S  = (result & 0x80) != 0;
+    cpu->flags.P  = my_parity(result & 0xFF);
+    cpu->flags.CY = result > 0xFF;
+    cpu->flags.AC = (cpu->A & 0x0F) + (correction & 0x0F) > 0x0F;
+
+    cpu->A = result & 0xFF;
+    cpu->PC += 1;
+}
