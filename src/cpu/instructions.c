@@ -465,3 +465,45 @@ void xri(uint8_t opcode, CPU8080 *cpu) {
     update_flags_logical(result, cpu, true);
     cpu->PC += 2;
 }
+
+void rrc(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t lsb = cpu->A & 1;
+
+    cpu->A = (cpu->A >> 1) | (lsb << 7);
+    cpu->flags.CY = lsb;
+
+    cpu->PC += 1;
+}
+
+void rlc(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t msb = (cpu->A & 0x80) >> 7;
+
+    cpu->A = (cpu->A << 1) | msb;
+    cpu->flags.CY = msb;
+
+    cpu->PC += 1;
+}
+
+void rar(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t old_cy = cpu->flags.CY;
+    uint8_t lsb = cpu->A & 1;
+
+    cpu->A = (cpu->A >> 1) | (old_cy << 7);
+    cpu->flags.CY = lsb;
+
+    cpu->PC += 1;
+}
+
+void ral(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t old_cy = cpu->flags.CY;
+    uint8_t msb = (cpu->A & 0x80) >> 7;
+
+    cpu->A = (cpu->A << 1) | old_cy;
+    cpu->flags.CY = msb;
+
+    cpu->PC += 1;
+}

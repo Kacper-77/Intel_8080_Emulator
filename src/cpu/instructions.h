@@ -16,6 +16,10 @@ void cpi(uint8_t opcode, CPU8080 *cpu);
 void ani(uint8_t opcode, CPU8080 *cpu);
 void ori(uint8_t opcode, CPU8080 *cpu);
 void xri(uint8_t opcode, CPU8080 *cpu);
+void rrc(uint8_t opcode, CPU8080 *cpu);
+void rlc(uint8_t opcode, CPU8080 *cpu);
+void rar(uint8_t opcode, CPU8080 *cpu);
+void ral(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);

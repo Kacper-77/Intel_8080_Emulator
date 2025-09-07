@@ -54,4 +54,8 @@ void init_instruction_table(void) {
     instruction_table[0xE6] = ani;
     instruction_table[0xF6] = ori;
     instruction_table[0xEE] = xri;
+    instruction_table[0x0F] = rrc;
+    instruction_table[0x07] = rlc;
+    instruction_table[0x37] = rar;
+    instruction_table[0x21] = ral;
 }
