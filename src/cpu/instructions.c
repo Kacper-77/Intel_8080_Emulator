@@ -541,7 +541,13 @@ void jmp_conditional(uint8_t opcode, CPU8080 *cpu) {
         case 0xE2: should_jump = !cpu->flags.P; break; // JPO
         default: return;
     }
-    cpu->PC = should_jump ? addr : cpu->PC + 3;
+    if (should_jump) {
+        cpu->PC = addr;
+    } else {
+        custom_cycle = true;
+        cpu->cycles += 7;
+        cpu->PC = cpu->PC + 3;
+    }
 }
 
 void call_conditional(uint8_t opcode, CPU8080 *cpu) {
@@ -564,6 +570,8 @@ void call_conditional(uint8_t opcode, CPU8080 *cpu) {
         set_return_addr(cpu->PC + 3, cpu);
         cpu->PC = addr;
     } else {
+        custom_cycle = true;
+        cpu->cycles += 11;
         cpu->PC += 3;
     }
 }
@@ -588,6 +596,16 @@ void ret_conditional(uint8_t opcode, CPU8080 *cpu) {
         cpu->SP += 2;
         cpu->PC = addr;
     } else {
+        custom_cycle = true;
+        cpu->cycles += 5;
         cpu->PC += 1;
     }
+}
+
+void lda(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint16_t addr = fetch_addr(cpu);
+    cpu->A = cpu->memory[addr];
+
+    cpu->PC += 3;
 }
