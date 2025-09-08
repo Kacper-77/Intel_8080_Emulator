@@ -39,3 +39,7 @@ void dcx_generic(uint8_t opcode, CPU8080 *cpu);
 void ana_generic(uint8_t opcode, CPU8080 *cpu);
 void ora_generic(uint8_t opcode, CPU8080 *cpu);
 void xra_generic(uint8_t opcode, CPU8080 *cpu);
+
+void jmp_conditional(uint8_t opcode, CPU8080 *cpu);
+void call_conditional(uint8_t opcode, CPU8080 *cpu);
+void ret_conditional(uint8_t opcode, CPU8080 *cpu);

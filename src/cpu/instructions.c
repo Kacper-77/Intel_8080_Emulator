@@ -15,6 +15,10 @@ static void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
     cpu->SP -= 2;
 }
 
+static uint16_t fetch_return_addr(CPU8080 *cpu) {
+    return (cpu->memory[cpu->SP + 1] << 8) | cpu->memory[cpu->SP];
+}
+
 /////////////////////////////////////////////////////////////////////////
 
 void nop(uint8_t opcode, CPU8080 *cpu) {
@@ -59,9 +63,7 @@ void hlt(uint8_t opcode, CPU8080 *cpu) {
 void call(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint16_t addr = fetch_addr(cpu);
-    uint16_t return_addr = cpu->PC + 3;
-
-    set_return_addr(return_addr, cpu);
+    set_return_addr(cpu->PC + 3, cpu);
 
     cpu->PC = addr;
 }
@@ -262,7 +264,6 @@ void pop_generic(uint8_t opcode, CPU8080 *cpu) {
         case 0xC1: cpu->C = low; cpu->B = high; break;
         case 0xD1: cpu->E = low; cpu->D = high; break;
         case 0xE1: cpu->L = low; cpu->H = high; break;
-
         case 0xF1:
             cpu->A = high;
             cpu->flags.S  = (low >> 7) & 1;
@@ -518,15 +519,75 @@ void daa(uint8_t opcode, CPU8080 *cpu) {
     if ((cpu->A >> 4) > 9 || cpu->flags.CY || (cpu->A + correction > 0x99)) {
         correction = 0x60;
     }
-
     uint16_t result = cpu->A + correction;
-
-    cpu->flags.Z  = ((result & 0xFF) == 0);
-    cpu->flags.S  = (result & 0x80) != 0;
-    cpu->flags.P  = my_parity(result & 0xFF);
-    cpu->flags.CY = result > 0xFF;
-    cpu->flags.AC = (cpu->A & 0x0F) + (correction & 0x0F) > 0x0F;
+    update_flags_after_add(result, correction, cpu, false);
 
     cpu->A = result & 0xFF;
     cpu->PC += 1;
+}
+
+void jmp_conditional(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t addr = fetch_addr(cpu);
+    bool should_jump = false;
+
+    switch (opcode) {
+        case 0xCA: should_jump = cpu->flags.Z;  break; // JZ
+        case 0xC2: should_jump = !cpu->flags.Z; break; // JNZ
+        case 0xDA: should_jump = cpu->flags.CY; break; // JC
+        case 0xD2: should_jump = !cpu->flags.CY;break; // JNC
+        case 0xFA: should_jump = cpu->flags.S == 0; break; // JP
+        case 0xF2: should_jump = cpu->flags.S == 1; break; // JM
+        case 0xEA: should_jump = cpu->flags.P;  break; // JPE
+        case 0xE2: should_jump = !cpu->flags.P; break; // JPO
+        default: return;
+    }
+    cpu->PC = should_jump ? addr : cpu->PC + 3;
+}
+
+void call_conditional(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t addr = fetch_addr(cpu);
+    bool should_call = false;
+
+    switch (opcode) {
+        case 0xC4: should_call = !cpu->flags.Z; break; // CNZ
+        case 0xCC: should_call = cpu->flags.Z;  break; // CZ
+        case 0xD4: should_call = !cpu->flags.CY;break; // CNC
+        case 0xDC: should_call = cpu->flags.CY; break; // CC
+        case 0xE4: should_call = !cpu->flags.P; break; // CPO
+        case 0xEC: should_call = cpu->flags.P;  break; // CPE
+        case 0xF4: should_call = !cpu->flags.S; break; // CP
+        case 0xFC: should_call = cpu->flags.S;  break; // CM
+        default: return;
+    }
+
+    if (should_call) {
+        set_return_addr(cpu->PC + 3, cpu);
+        cpu->PC = addr;
+    } else {
+        cpu->PC += 3;
+    }
+}
+
+void ret_conditional(uint8_t opcode, CPU8080 *cpu) {
+    bool should_return = false;
+
+    switch (opcode) {
+        case 0xC0: should_return = !cpu->flags.Z; break;  // RNZ
+        case 0xC8: should_return =  cpu->flags.Z; break;  // RZ
+        case 0xD0: should_return = !cpu->flags.CY; break; // RNC
+        case 0xD8: should_return =  cpu->flags.CY; break; // RC
+        case 0xE0: should_return = !cpu->flags.P; break;  // RPO
+        case 0xE8: should_return =  cpu->flags.P; break;  // RPE
+        case 0xF0: should_return = !cpu->flags.S; break;  // RP
+        case 0xF8: should_return =  cpu->flags.S; break;  // RM
+        default: return;
+    }
+
+    if (should_return) {
+        uint16_t addr = fetch_return_addr(cpu);
+        cpu->SP += 2;
+        cpu->PC = addr;
+    } else {
+        cpu->PC += 1;
+    }
 }
