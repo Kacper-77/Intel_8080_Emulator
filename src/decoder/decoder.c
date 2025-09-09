@@ -68,4 +68,7 @@ void init_instruction_table(void) {
     instruction_table[0x32] = sta;
     instruction_table[0x22] = shld;
     instruction_table[0x2A] = lhld;
+    instruction_table[0xEB] = xchg;
+    instruction_table[0xF9] = sphl;
+    instruction_table[0xE3] = xthl;
 }

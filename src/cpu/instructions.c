@@ -663,3 +663,35 @@ void stax_generic(uint8_t opcode, CPU8080 *cpu) {
     }
     cpu->PC += 1;
 }
+
+void xchg(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t tempH = cpu->H;
+    uint8_t tempL = cpu->L;
+
+    cpu->H = cpu->D;
+    cpu->L = cpu->E;
+    cpu->D = tempH;
+    cpu->E = tempL;
+
+    cpu->PC += 1;
+}
+
+void sphl(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    cpu->SP = get_rpair(cpu->H, cpu->L);
+    cpu->PC += 1;
+}
+
+void xthl(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t tempH = cpu->H;
+    uint8_t tempL = cpu->L;
+
+    cpu->H = cpu->memory[cpu->SP + 1];
+    cpu->L = cpu->memory[cpu->SP];
+    cpu->memory[cpu->SP + 1] = tempH;
+    cpu->memory[cpu->SP] = tempL;
+
+    cpu->PC += 1;
+}

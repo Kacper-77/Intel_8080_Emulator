@@ -25,6 +25,9 @@ void lda(uint8_t opcode, CPU8080 *cpu);
 void sta(uint8_t opcode, CPU8080 *cpu);
 void shld(uint8_t opcode, CPU8080 *cpu);
 void lhld(uint8_t opcode, CPU8080 *cpu);
+void xchg(uint8_t opcode, CPU8080 *cpu);
+void sphl(uint8_t opcode, CPU8080 *cpu);
+void xthl(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);
