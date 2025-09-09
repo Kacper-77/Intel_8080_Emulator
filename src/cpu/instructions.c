@@ -5,21 +5,6 @@
 #include "stddef.h"
 #include <stdio.h>
 
-static uint16_t fetch_addr(CPU8080 *cpu) {
-    return (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
-}
-
-static void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
-    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
-    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
-    cpu->SP -= 2;
-}
-
-static uint16_t fetch_return_addr(CPU8080 *cpu) {
-    return (cpu->memory[cpu->SP + 1] << 8) | cpu->memory[cpu->SP];
-}
-
-/////////////////////////////////////////////////////////////////////////
 
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;

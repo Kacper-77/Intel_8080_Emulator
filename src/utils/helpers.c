@@ -59,8 +59,16 @@ void set_rpair(uint8_t value, uint8_t *high, uint8_t *low) {
     *low = value & 0xFF;
 }
 
-// uint8_t parity = result & 0xFF;  EASTER EGG 
-//     uint8_t count = 0;
-//     for (int i = 0; i < 8; i++) {
-//         if (parity & (1 << i)) count++;
-//     }
+uint16_t fetch_addr(CPU8080 *cpu) {
+    return (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
+}
+
+void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
+    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
+    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
+    cpu->SP -= 2;
+}
+
+uint16_t fetch_return_addr(CPU8080 *cpu) {
+    return (cpu->memory[cpu->SP + 1] << 8) | cpu->memory[cpu->SP];
+}
