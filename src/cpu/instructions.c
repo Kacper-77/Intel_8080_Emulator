@@ -609,3 +609,57 @@ void lda(uint8_t opcode, CPU8080 *cpu) {
 
     cpu->PC += 3;
 }
+
+void sta(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint16_t addr = fetch_addr(cpu);
+    cpu->memory[addr] = cpu->A;
+    
+    cpu->PC += 3;
+}
+
+void shld(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint16_t addr = fetch_addr(cpu);
+    cpu->memory[addr] = cpu->L;
+    cpu->memory[addr + 1] = cpu->H;
+
+    cpu->PC += 3;
+}
+
+void lhld(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint16_t addr = fetch_addr(cpu);
+    cpu->L = cpu->memory[addr];
+    cpu->H = cpu->memory[addr + 1];
+
+    cpu->PC += 3;
+}
+
+void ldax_generic(uint8_t opcode, CPU8080 *cpu) {
+    uint16_t addr;
+    switch (opcode)
+    {
+    case 0x0A:
+        addr = get_rpair(cpu->B, cpu->C);
+        cpu->A = cpu->memory[addr];
+        break;
+    case 0x1A:
+        addr = get_rpair(cpu->D, cpu->E);
+        cpu->A = cpu->memory[addr];
+        break;
+    }
+    cpu->PC += 1;
+}
+
+void stax_generic(uint8_t opcode, CPU8080 *cpu) {
+    switch (opcode) {
+        case 0x02:
+            cpu->memory[get_rpair(cpu->B, cpu->C)] = cpu->A;
+            break;
+        case 0x12:
+            cpu->memory[get_rpair(cpu->D, cpu->E)] = cpu->A;
+            break;
+    }
+    cpu->PC += 1;
+}

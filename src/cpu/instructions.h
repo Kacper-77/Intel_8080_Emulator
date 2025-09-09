@@ -22,6 +22,9 @@ void rar(uint8_t opcode, CPU8080 *cpu);
 void ral(uint8_t opcode, CPU8080 *cpu);
 void daa(uint8_t opcode, CPU8080 *cpu);
 void lda(uint8_t opcode, CPU8080 *cpu);
+void sta(uint8_t opcode, CPU8080 *cpu);
+void shld(uint8_t opcode, CPU8080 *cpu);
+void lhld(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);
@@ -40,6 +43,8 @@ void dcx_generic(uint8_t opcode, CPU8080 *cpu);
 void ana_generic(uint8_t opcode, CPU8080 *cpu);
 void ora_generic(uint8_t opcode, CPU8080 *cpu);
 void xra_generic(uint8_t opcode, CPU8080 *cpu);
+void ldax_generic(uint8_t opcode, CPU8080 *cpu);
+void stax_generic(uint8_t opcode, CPU8080 *cpu);
 
 void jmp_conditional(uint8_t opcode, CPU8080 *cpu);
 void call_conditional(uint8_t opcode, CPU8080 *cpu);
