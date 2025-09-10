@@ -24,8 +24,8 @@ void init_instruction_table(void) {
     SET_RANGE_OP(0x40, 0x7F, mov_generic);
     SET_OP(mvi_generic, 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E);
     SET_OP(lxi_generic, 0x01, 0x11, 0x21, 0x31);
-    SET_RANGE_OP(0x80, 0x87, add_generic);
-    SET_RANGE_OP(0x90, 0x97, sub_generic);
+    SET_RANGE_OP(0x80, 0x8F, add_generic);
+    SET_RANGE_OP(0x90, 0x9F, sub_generic);
     SET_OP(inr_generic, 0x04, 0x0C, 0x14, 0x1C, 0x24, 0x2C, 0x34, 0x3C);
     SET_OP(dcr_generic, 0x05, 0x0D, 0x15, 0x1D, 0x25, 0x2D, 0x35, 0x3D);
     SET_OP(rst_generic, 0xC7, 0xCF, 0xD7, 0xDF, 0xE7, 0xEF, 0xF7, 0xFF);
@@ -61,8 +61,8 @@ void init_instruction_table(void) {
     instruction_table[0xEE] = xri;
     instruction_table[0x0F] = rrc;
     instruction_table[0x07] = rlc;
-    instruction_table[0x37] = rar;
-    instruction_table[0x21] = ral;
+    instruction_table[0x1F] = rar;
+    instruction_table[0x17] = ral;
     instruction_table[0x27] = daa;
     instruction_table[0x3A] = lda;
     instruction_table[0x32] = sta;
@@ -71,4 +71,8 @@ void init_instruction_table(void) {
     instruction_table[0xEB] = xchg;
     instruction_table[0xF9] = sphl;
     instruction_table[0xE3] = xthl;
+    instruction_table[0x2F] = cma;
+    instruction_table[0x3F] = cmc;
+    instruction_table[0x37] = stc;
+    instruction_table[0xE9] = pchl;
 }
