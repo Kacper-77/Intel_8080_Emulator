@@ -35,11 +35,11 @@ void pchl(uint8_t opcode, CPU8080 *cpu);
 
 void mov_generic(uint8_t opcode, CPU8080 *cpu);
 void mvi_generic(uint8_t opcode, CPU8080 *cpu);
-void add_generic(uint8_t opcode, CPU8080 *cpu);
+void add_adc_generic(uint8_t opcode, CPU8080 *cpu);
 void inr_generic(uint8_t opcode, CPU8080 *cpu);
 void dcr_generic(uint8_t opcode, CPU8080 *cpu);
 void lxi_generic(uint8_t opcode, CPU8080 *cpu);
-void sub_generic(uint8_t opcode, CPU8080 *cpu);
+void sub_sbb_generic(uint8_t opcode, CPU8080 *cpu);
 void rst_generic(uint8_t opcode, CPU8080 *cpu);
 void push_generic(uint8_t opcode, CPU8080 *cpu);
 void pop_generic(uint8_t opcode, CPU8080 *cpu);

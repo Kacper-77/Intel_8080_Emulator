@@ -4,7 +4,7 @@
 #include "../utils/helpers.h"
 #include <stdio.h>
 
-void add_generic(uint8_t opcode, CPU8080 *cpu) {
+void add_adc_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value;
     uint8_t reg_code = opcode & 0x07;
 
@@ -45,7 +45,7 @@ void aci(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 2;
 }
 
-void sub_generic(uint8_t opcode, CPU8080 *cpu) {
+void sub_sbb_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
     uint8_t value;
 
