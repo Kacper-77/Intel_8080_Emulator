@@ -28,6 +28,9 @@ typedef struct {
 
     // 64KB memory
     uint8_t memory[0x10000];
+    uint16_t stack_base;
+    uint16_t heap_base;
+    uint16_t heap_ptr;
 
     uint64_t cycles;
 
@@ -42,3 +45,4 @@ extern const uint8_t t_states[256];
 void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode);
 void trigger_trap(CPU8080 *cpu);
 void execute_instruction(CPU8080 *cpu, uint8_t opcode);
+bool check_heap_bounds(CPU8080 *cpu, uint16_t size);

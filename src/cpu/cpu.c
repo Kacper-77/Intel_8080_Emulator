@@ -26,8 +26,12 @@ const uint8_t t_states[256] = {
 
 void cpu_init(CPU8080 *cpu) {
     memset(cpu, 0, sizeof(CPU8080));
-    cpu->SP = 0xFFFF;
     cpu->PC = 0x0000;
+    cpu->SP = 0xFFFE;
+    cpu->stack_base = 0xF000;
+    cpu->heap_base = 0x0200;
+    cpu->heap_ptr = cpu->heap_base;
+
     cpu->halted = false;
     cpu->interrupt_enabled = false;
     cpu->pending_interrupt = false;
@@ -95,4 +99,14 @@ void trigger_trap(CPU8080 *cpu) {
     cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
     cpu->SP -= 2;
     cpu->PC = 0x24;
+}
+
+bool check_heap_bounds(CPU8080 *cpu, uint16_t size) {
+    if (cpu->heap_ptr + size >= cpu->stack_base) {
+        printf("❌ Heap overflow! heap_ptr=0x%04X + size=0x%04X >= stack_base=0x%04X\n",
+               cpu->heap_ptr, size, cpu->stack_base);
+        cpu->halted = true;
+        return false;
+    }
+    return true;
 }

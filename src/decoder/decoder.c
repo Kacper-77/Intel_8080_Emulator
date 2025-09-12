@@ -75,14 +75,4 @@ void init_instruction_table(void) {
     instruction_table[0x3F] = cmc;
     instruction_table[0x37] = stc;
     instruction_table[0xE9] = pchl;
-
-    int counter = 0;
-    for (int i = 0; i < 256; i++) {
-        if (instruction_table[i] != NULL) {
-            counter++;
-        } else {
-            printf("No OP: 0x%02X\n", i);
-        }
-    }
-    printf("All ops: %u\n", counter);
 }
