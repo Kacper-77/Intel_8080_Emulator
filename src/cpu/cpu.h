@@ -46,3 +46,4 @@ void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode);
 void trigger_trap(CPU8080 *cpu);
 void execute_instruction(CPU8080 *cpu, uint8_t opcode);
 bool check_heap_bounds(CPU8080 *cpu, uint16_t size);
+void* heap_alloc(CPU8080 *cpu, uint16_t size);

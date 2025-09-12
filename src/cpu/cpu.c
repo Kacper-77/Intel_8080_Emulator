@@ -110,3 +110,11 @@ bool check_heap_bounds(CPU8080 *cpu, uint16_t size) {
     }
     return true;
 }
+
+void* heap_alloc(CPU8080 *cpu, uint16_t size) {
+    if (!check_heap_bounds(cpu, size)) return NULL;
+
+    void* ptr = &cpu->memory[cpu->heap_ptr];
+    cpu->heap_ptr += size;
+    return ptr;
+}
