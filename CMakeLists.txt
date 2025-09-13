@@ -13,7 +13,8 @@ set(SOURCES
     src/cpu/arithmetic.c
     src/cpu/logical.c
     src/cpu/branch_stack.c
-    src/cpu/control.c
+    src/cpu/control_io.c
+    src/utils/io_simulation/ports.c
 )
 
 add_executable(emulator8080 ${SOURCES})

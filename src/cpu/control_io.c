@@ -1,5 +1,6 @@
 #include "instructions.h"
 #include "../decoder/decoder.h"
+#include "../utils/io_simulation/ports.h"
 
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
@@ -23,4 +24,26 @@ void di(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->interrupt_enabled = false;
     cpu->PC += 1;
+}
+
+uint8_t io_in(uint8_t port) {
+    switch (port) {
+        case 0x01: return keyboard_read();
+        default: return 0xFF;
+    }
+}
+
+void handle_in(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
+    uint8_t port = cpu->memory[cpu->PC + 1];
+    cpu->A = io_in(port);
+    cpu->PC += 2;
+}
+
+void io_out(uint8_t port, uint8_t value) {
+
+}
+
+void handle_out(uint8_t opcode, CPU8080 *cpu) {
+
 }

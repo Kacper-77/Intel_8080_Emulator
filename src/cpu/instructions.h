@@ -56,3 +56,9 @@ void stax_generic(uint8_t opcode, CPU8080 *cpu);
 void jmp_conditional(uint8_t opcode, CPU8080 *cpu);
 void call_conditional(uint8_t opcode, CPU8080 *cpu);
 void ret_conditional(uint8_t opcode, CPU8080 *cpu);
+
+uint8_t io_in(uint8_t port);
+void handle_in(uint8_t opcode, CPU8080 *cpu);
+
+void io_out(uint8_t port, uint8_t value);
+void handle_out(uint8_t opcode, CPU8080 *cpu);

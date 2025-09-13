@@ -75,4 +75,6 @@ void init_instruction_table(void) {
     instruction_table[0x3F] = cmc;
     instruction_table[0x37] = stc;
     instruction_table[0xE9] = pchl;
+    instruction_table[0xDB] = handle_in;
+    instruction_table[0xD3] = handle_out;
 }

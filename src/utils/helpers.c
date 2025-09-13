@@ -1,4 +1,5 @@
 #include "helpers.h"
+#include <stdio.h>
 
 uint8_t my_parity(uint8_t value) {
     value ^= value >> 4;
@@ -64,9 +65,14 @@ uint16_t fetch_addr(CPU8080 *cpu) {
 }
 
 void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
-    cpu->memory[cpu->SP - 1] = (return_addr >> 8) & 0xFF;
-    cpu->memory[cpu->SP - 2] = return_addr & 0xFF;
     cpu->SP -= 2;
+    if (cpu->SP < cpu->stack_base) {
+        printf("❌ Stack overflow, SP=%04X, stack bound: %04X.", cpu->SP, cpu->stack_base);
+        cpu->halted = true;
+    } else {
+        cpu->memory[cpu->SP] = return_addr & 0xFF;
+        cpu->memory[cpu->SP + 1] = (return_addr >> 8) & 0xFF;
+    }
 }
 
 uint16_t fetch_return_addr(CPU8080 *cpu) {
