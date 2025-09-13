@@ -41,9 +41,14 @@ void handle_in(uint8_t opcode, CPU8080 *cpu) {
 }
 
 void io_out(uint8_t port, uint8_t value) {
-
+    switch (port) {
+        case 0x02: monitor_write(value); break;
+    }
 }
 
 void handle_out(uint8_t opcode, CPU8080 *cpu) {
-
+    (void)opcode;
+    uint8_t port = cpu->memory[cpu->PC + 1];
+    io_out(port, cpu->A);
+    cpu->PC += 2;
 }

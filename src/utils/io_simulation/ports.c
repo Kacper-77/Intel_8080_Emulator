@@ -1,4 +1,5 @@
 #include "ports.h"
+#include <stdio.h>
 
 char key_buffer[16] = { 0 };
 int key_pos = 0;
@@ -17,4 +18,8 @@ uint8_t keyboard_read(void) {
         return key_buffer[read_pos++];
     }
     return 0x00;
+}
+
+void monitor_write(uint8_t value) {
+    putchar(value);
 }
