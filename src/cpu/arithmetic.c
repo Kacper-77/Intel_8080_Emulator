@@ -128,10 +128,10 @@ void daa(uint8_t opcode, CPU8080 *cpu) {
     uint8_t correction = 0;
 
     if ((cpu->A & 0x0F) > 9 || cpu->flags.AC) {
-        correction = 0x06;
+        correction += 0x06;
     } 
     if ((cpu->A >> 4) > 9 || cpu->flags.CY || (cpu->A + correction > 0x99)) {
-        correction = 0x60;
+        correction += 0x60;
     }
     uint16_t result = cpu->A + correction;
     update_flags_after_add(result, correction, cpu, false);
@@ -205,6 +205,7 @@ void dcx_generic(uint8_t opcode, CPU8080 *cpu) {
             break;
         case 0x3B:
             cpu->SP--;
+            check_stack_bounds(cpu);
             break;
     }
     cpu->PC += 1;

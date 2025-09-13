@@ -15,7 +15,6 @@ void mov_generic(uint8_t opcode, CPU8080 *cpu) {
     } else {
         *cpu->registers[dest_code] = *cpu->registers[src_code];
     }
-
     cpu->PC += 1;
 }
 
@@ -29,7 +28,6 @@ void mvi_generic(uint8_t opcode, CPU8080 *cpu) {
     } else {
         *cpu->registers[reg_code] = data;
     }
-
     cpu->PC += 2;
 }
 

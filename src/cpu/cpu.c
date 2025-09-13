@@ -118,3 +118,14 @@ void* heap_alloc(CPU8080 *cpu, uint16_t size) {
     cpu->heap_ptr += size;
     return ptr;
 }
+
+void check_stack_bounds(CPU8080 *cpu) {
+    if (cpu->SP < cpu->stack_base) {
+        printf("❌ Stack underflow! SP=%04X, stack_base=%04X\n", cpu->SP, cpu->stack_base);
+        cpu->halted = true;
+    }
+    if (cpu->SP > 0xFFFE) {
+        printf("❌ Stack overflow! SP=%04X, MaxSP=%04X\n", cpu->SP, 0xFFFE);
+        cpu->halted = true;
+    }
+}

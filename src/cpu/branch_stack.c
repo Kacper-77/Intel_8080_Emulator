@@ -18,6 +18,7 @@ void ret(uint8_t opcode, CPU8080 *cpu) {
     uint16_t addr = (high << 8) | low;
 
     cpu->SP += 2;
+    check_stack_bounds(cpu);
     cpu->PC = addr;
 }
 
@@ -101,25 +102,27 @@ void push_generic(uint8_t opcode, CPU8080 *cpu) {
     (1 << 1) |
     (cpu->flags.CY << 0);
 
+    cpu->SP -= 2;
+    check_stack_bounds(cpu);
+
     switch (opcode) {
         case 0xC5:
-            cpu->memory[cpu->SP - 1] = cpu->B;
-            cpu->memory[cpu->SP - 2] = cpu->C;
+            cpu->memory[cpu->SP + 1] = cpu->B;
+            cpu->memory[cpu->SP] = cpu->C;
             break;
         case 0xD5:
-            cpu->memory[cpu->SP - 1] = cpu->D;
-            cpu->memory[cpu->SP - 2] = cpu->E;
+            cpu->memory[cpu->SP + 1] = cpu->D;
+            cpu->memory[cpu->SP] = cpu->E;
             break;
         case 0xE5:
-            cpu->memory[cpu->SP - 1] = cpu->H;
-            cpu->memory[cpu->SP - 2] = cpu->L;
+            cpu->memory[cpu->SP + 1] = cpu->H;
+            cpu->memory[cpu->SP] = cpu->L;
             break;
         case 0xF5:
-            cpu->memory[cpu->SP - 1] = cpu->A;
-            cpu->memory[cpu->SP - 2] = flags_byte;
+            cpu->memory[cpu->SP + 1] = cpu->A;
+            cpu->memory[cpu->SP] = flags_byte;
             break;
     }
-    cpu->SP -= 2;
     cpu->PC += 1;
 }
 
@@ -127,6 +130,8 @@ void pop_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t low = cpu->memory[cpu->SP];
     uint8_t high = cpu->memory[cpu->SP + 1];
     cpu->SP += 2;
+
+    check_stack_bounds(cpu);
 
     switch (opcode) {
         case 0xC1: cpu->C = low; cpu->B = high; break;
