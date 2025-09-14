@@ -7,10 +7,7 @@ int read_pos = 0;
 
 void preload_keys(void) {
     key_buffer[key_pos++] = 'H';
-    key_buffer[key_pos++] = 'e';
-    key_buffer[key_pos++] = 'l';
-    key_buffer[key_pos++] = 'l';
-    key_buffer[key_pos++] = 'o';
+    key_buffer[key_pos++] = 'i';
 }
 
 uint8_t keyboard_read(void) {
@@ -22,4 +19,5 @@ uint8_t keyboard_read(void) {
 
 void monitor_write(uint8_t value) {
     putchar(value);
+    putchar('\n');
 }

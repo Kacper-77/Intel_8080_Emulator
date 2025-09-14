@@ -1,6 +1,6 @@
 #include "instructions.h"
 #include "../decoder/decoder.h"
-#include "../utils/io_simulation/ports.h"
+#include "../io_simulation/ports.h"
 
 void nop(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;

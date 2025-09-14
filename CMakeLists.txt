@@ -14,7 +14,7 @@ set(SOURCES
     src/cpu/logical.c
     src/cpu/branch_stack.c
     src/cpu/control_io.c
-    src/utils/io_simulation/ports.c
+    src/io_simulation/ports.c
 )
 
 add_executable(emulator8080 ${SOURCES})

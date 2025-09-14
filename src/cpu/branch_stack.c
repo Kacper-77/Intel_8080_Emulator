@@ -168,8 +168,6 @@ void jmp_conditional(uint8_t opcode, CPU8080 *cpu) {
     if (should_jump) {
         cpu->PC = addr;
     } else {
-        custom_cycle = true;
-        cpu->cycles += 7;
         cpu->PC = cpu->PC + 3;
     }
 }

@@ -6,7 +6,7 @@
 
 
 const uint8_t t_states[256] = {
-    4, 10, 7, 5, 5, 7, 7, 4, 4, 10, 7, 5, 5, 7, 4, 4,             // 0x00 - 0x0F
+    4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 7, 4, 4,             // 0x00 - 0x0F
     4, 10, 7, 5, 5, 7, 4, 4, 4, 10, 7, 5, 5, 7, 4, 4,             // 0x10 - 0x1F
     4, 10, 16, 5, 5, 7, 4, 4, 4, 10, 16, 5, 5, 7, 4, 4,           // 0x20 - 0x2F
     4, 10, 13, 5, 5, 7, 4, 4, 4, 10, 13, 5, 5, 7,7, 4,            // 0x30 - 0x3F
@@ -18,7 +18,7 @@ const uint8_t t_states[256] = {
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,               // 0x90 - 0x9F
     4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 7, 4,               // 0xA0 - 0xAF
     4, 4, 4, 4, 4, 4, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4,               // 0xB0 - 0xBF
-    11, 10, 10, 10, 17, 11, 11, 11, 11, 10, 17, 10, 17, 17, 11, 11, // 0xC0 - 0xCF
+    11, 10, 10, 10, 17, 11, 11, 11, 11, 10, 10, 10, 17, 17, 11, 11, // 0xC0 - 0xCF
     11, 10, 10, 10, 17, 11, 11, 11, 11, 10, 10, 10, 17, 11, 11, 11, // 0xD0 - 0xDF
     11, 10, 10, 18, 17, 11, 7, 11, 11, 10, 10, 4, 17, 11, 7, 11,    // 0xE0 - 0xEF
     11, 10, 10, 4, 17, 11, 7, 11, 11, 5, 10, 4, 17, 11, 7, 11       // 0xF0 - 0xFF
@@ -27,7 +27,7 @@ const uint8_t t_states[256] = {
 void cpu_init(CPU8080 *cpu) {
     memset(cpu, 0, sizeof(CPU8080));
     cpu->PC = 0x0000;
-    cpu->SP = 0xFFFE;
+    cpu->SP = 0xFFFF;
     cpu->stack_base = 0xF000;
     cpu->heap_base = 0x0200;
     cpu->heap_ptr = cpu->heap_base;
@@ -60,7 +60,6 @@ bool cpu_emulate(CPU8080 *cpu) {
         cpu->interrupt_enabled = false;
         cpu->pending_interrupt = false;
         uint8_t opcode = cpu->interrupt_opcode;
-        printf("Interrupted here, opcode: 0x%02X\n", opcode);
         execute_instruction(cpu, opcode);
         cpu->is_interrupt = false;
         return true;
@@ -124,8 +123,8 @@ void check_stack_bounds(CPU8080 *cpu) {
         printf("❌ Stack underflow! SP=%04X, stack_base=%04X\n", cpu->SP, cpu->stack_base);
         cpu->halted = true;
     }
-    if (cpu->SP > 0xFFFE) {
-        printf("❌ Stack overflow! SP=%04X, MaxSP=%04X\n", cpu->SP, 0xFFFE);
+    if (cpu->SP > 0xFFFF) {
+        printf("\n❌ Stack overflow! SP=%04X, MaxSP=%04X\n", cpu->SP, 0xFFFF);
         cpu->halted = true;
     }
 }
