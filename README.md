@@ -1,6 +1,7 @@
 # Intel 8080 Emulator in C
 
 A cycle-accurate emulator for the Intel 8080 CPU, built from scratch to explore the foundations of processor architecture and low-level execution. This project includes full instruction decoding, stack and interrupt handling, and a suite of test programs with visual logs.
+I spent over a month building this project, and I'm proud to share it with you.
 
 
 # 🧠 Human Side — Motivation & Highlights
