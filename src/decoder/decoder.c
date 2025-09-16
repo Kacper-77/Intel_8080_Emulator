@@ -1,6 +1,6 @@
 #include "decoder.h"
 #include "../cpu/cpu.h"
-#include "../cpu/instructions.h"
+#include "../instructions/instructions.h"
 #include <stdio.h>
 
 #define SET_RANGE_OP(start, stop, func) do { \

@@ -1,5 +1,5 @@
 #pragma once
-#include "cpu.h"
+#include "../cpu/cpu.h"
 
 void nop(uint8_t opcode, CPU8080 *cpu);
 void adi(uint8_t opcode, CPU8080 *cpu);

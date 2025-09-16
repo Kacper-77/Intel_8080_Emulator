@@ -9,11 +9,11 @@ set(SOURCES
     src/cpu/cpu.c
     src/utils/helpers.c
     src/decoder/decoder.c
-    src/cpu/data_transfer.c
-    src/cpu/arithmetic.c
-    src/cpu/logical.c
-    src/cpu/branch_stack.c
-    src/cpu/control_io.c
+    src/instructions/data_transfer.c
+    src/instructions/arithmetic.c
+    src/instructions/logical.c
+    src/instructions/branch_stack.c
+    src/instructions/control_io.c
     src/io_simulation/ports.c
 )
 

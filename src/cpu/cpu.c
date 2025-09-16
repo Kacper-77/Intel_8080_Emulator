@@ -1,5 +1,5 @@
 #include "cpu.h"
-#include "instructions.h"
+#include "../instructions/instructions.h"
 #include "../decoder/decoder.h"
 #include <stdio.h>
 #include <string.h>
