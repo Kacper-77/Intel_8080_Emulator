@@ -36,16 +36,13 @@ void lxi_generic(uint8_t opcode, CPU8080 *cpu) {
 
     switch (opcode) {
         case 0x01:
-            cpu->B = value >> 8;
-            cpu->C = value & 0xFF;
+            set_rpair(value, &cpu->B, &cpu->C);
             break;
         case 0x11:
-            cpu->D = value >> 8;
-            cpu->E = value & 0xFF;
+            set_rpair(value, &cpu->D, &cpu->E);
             break;
         case 0x21:
-            cpu->H = value >> 8;
-            cpu->L = value & 0xFF;
+            set_rpair(value, &cpu->H, &cpu->L);
             break;
         case 0x31:
             cpu->SP = value;

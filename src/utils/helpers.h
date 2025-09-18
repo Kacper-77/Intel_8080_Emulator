@@ -9,7 +9,7 @@ void update_flags_after_sub(uint16_t a, uint8_t value, uint8_t borrow, CPU8080 *
 void update_flags_logical(uint16_t result, CPU8080 *cpu, bool cleared);
 
 uint16_t get_rpair(uint8_t high, uint8_t low);
-void set_rpair(uint8_t value, uint8_t *high, uint8_t *low);
+void set_rpair(uint16_t value, uint8_t *high, uint8_t *low);
 uint8_t my_parity(uint8_t value);
 
 uint16_t fetch_addr(CPU8080 *cpu);
