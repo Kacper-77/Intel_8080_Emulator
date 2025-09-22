@@ -68,6 +68,50 @@ Interrupts and traps can also be triggered
 The decoder is built as a lookup table that maps each opcode to its corresponding handler. This makes the architecture modular and scalable — adding a new instruction is as simple as writing a handler and registering it.
 
 # 🧪 Demo: Some Test Programs
+## Final test (already in main.c):
+```
+=== 8080 Emulator Self-test Harness (robust) ===
+PC: 0x0000, Opcode: 0x3E, Cycles: 0
+PC: 0x0002, Opcode: 0x06, Cycles: 7
+PC: 0x0004, Opcode: 0x80, Cycles: 14
+PC: 0x0005, Opcode: 0x76, Cycles: 18
+[ADD (MVI/ADD)] ✅ PASS
+PC: 0x0000, Opcode: 0x21, Cycles: 0
+PC: 0x0003, Opcode: 0x11, Cycles: 10
+PC: 0x0006, Opcode: 0x19, Cycles: 20
+PC: 0x0007, Opcode: 0x76, Cycles: 30
+[LXI + DAD] ✅ PASS
+PC: 0x0000, Opcode: 0xCD, Cycles: 0
+PC: 0x0006, Opcode: 0x3E, Cycles: 17
+PC: 0x0008, Opcode: 0xC9, Cycles: 24
+PC: 0x0003, Opcode: 0x76, Cycles: 34
+[CALL / RET] ✅ PASS
+PC: 0x0000, Opcode: 0x3E, Cycles: 0
+PC: 0x0002, Opcode: 0x3C, Cycles: 7
+PC: 0x0003, Opcode: 0x76, Cycles: 12
+[INR (overflow->zero)] ✅ PASS
+PC: 0x0000, Opcode: 0xFB, Cycles: 0
+
+[cb_interrupt] requested interrupt (interrupt_enabled==true)
+PC: 0x0008, Opcode: 0x3E, Cycles: 15
+PC: 0x000A, Opcode: 0xC9, Cycles: 22
+PC: 0x0001, Opcode: 0x00, Cycles: 32
+PC: 0x0002, Opcode: 0x00, Cycles: 36
+PC: 0x0003, Opcode: 0x76, Cycles: 40
+[Interrupt (EI + RST1)] ✅ PASS
+PC: 0x0000, Opcode: 0x3E, Cycles: 0
+PC: 0x0002, Opcode: 0x00, Cycles: 7
+PC: 0x0003, Opcode: 0x00, Cycles: 11
+
+[cb_trap] triggered trap at cycles=15
+PC: 0x0024, Opcode: 0x3E, Cycles: 15
+PC: 0x0026, Opcode: 0xC9, Cycles: 22
+PC: 0x0004, Opcode: 0x76, Cycles: 32
+[Trap (trigger_trap -> 0x24)] ✅ PASS
+
+=== Summary: 6/6 tests passed ===
+```
+
 ## Test #1:
 ```
 uint8_t program[] = {
