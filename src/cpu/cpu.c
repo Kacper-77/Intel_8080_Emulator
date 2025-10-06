@@ -80,6 +80,7 @@ void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
         }
     } else {
         printf("Unknown opcode: 0x%02X\n", opcode);
+        cpu->halted = true;
     }
 }
 
