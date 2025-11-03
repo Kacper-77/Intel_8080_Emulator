@@ -77,4 +77,10 @@ void init_instruction_table(void) {
     instruction_table[0xE9] = pchl;
     instruction_table[0xDB] = handle_in;
     instruction_table[0xD3] = handle_out;
+
+    // Z80 - need to be ignored for CPUTEST.COM
+    instruction_table[0xD9] = nop;
+    instruction_table[0xDD] = nop;
+    instruction_table[0xFD] = nop;
+    instruction_table[0xED] = nop;
 }

@@ -14,11 +14,11 @@ typedef struct {
     uint16_t PC;
 
     struct {
-        bool Z;
-        bool S;
-        bool P;
-        bool CY;
-        bool AC;
+        uint8_t Z;   // zero
+        uint8_t S;   // sign
+        uint8_t P;   // parity
+        uint8_t CY;  // carry
+        uint8_t AC;  // aux carry
     } flags;
 
     bool interrupt_enabled;  // EI AND DI

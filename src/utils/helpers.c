@@ -1,18 +1,19 @@
 #include "helpers.h"
 #include <stdio.h>
 
-#define SET_ZSP(result, cpu) do { \ 
+#define SET_ZSP(result, cpu) do { \
+    uint8_t res = (result) & 0xFF; \
     cpu->flags.Z  = (((result) & 0xFF) == 0); \
     cpu->flags.S  = ((result) & 0x80) != 0; \
     cpu->flags.P  = my_parity((result) & 0xFF); \
-} while (0);
+} while (0)
 
 
 uint8_t my_parity(uint8_t value) {
     value ^= value >> 4;
     value ^= value >> 2;
     value ^= value >> 1;
-    return ~value & 1;
+    return value & 1;
 }
 
 void update_flags_after_add(uint16_t result, uint8_t operand, CPU8080 *cpu, bool include_cy) {
@@ -60,16 +61,18 @@ void set_rpair(uint16_t value, uint8_t *high, uint8_t *low) {
 }
 
 uint16_t fetch_addr(CPU8080 *cpu) {
-    return (cpu->memory[cpu->PC + 2] << 8) | cpu->memory[cpu->PC + 1];
+    return cpu->memory[cpu->PC + 1] | (cpu->memory[cpu->PC + 2] << 8);
 }
 
-void set_return_addr(uint16_t return_addr, CPU8080 *cpu) {
-    cpu->SP -= 2;
-    check_stack_bounds(cpu);
-    cpu->memory[cpu->SP] = return_addr & 0xFF;
-    cpu->memory[cpu->SP + 1] = (return_addr >> 8) & 0xFF;
+void set_return_addr(uint16_t addr, CPU8080 *cpu) {
+    cpu->SP--;
+    cpu->memory[cpu->SP] = (addr >> 8) & 0xFF; // hi byte
+    cpu->SP--;
+    cpu->memory[cpu->SP] = addr & 0xFF;        // lo byte
 }
 
 uint16_t fetch_return_addr(CPU8080 *cpu) {
-    return (cpu->memory[cpu->SP + 1] << 8) | cpu->memory[cpu->SP];
+    uint16_t lo = cpu->memory[cpu->SP++];
+    uint16_t hi = cpu->memory[cpu->SP++];
+    return (hi << 8) | lo;
 }

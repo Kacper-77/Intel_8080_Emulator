@@ -1,5 +1,6 @@
 #include "instructions.h"
 #include "stdint.h"
+#include <stdio.h>
 #include "../utils/helpers.h"
 #include "../decoder/decoder.h"
 
