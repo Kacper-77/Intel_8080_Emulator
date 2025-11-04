@@ -5,12 +5,14 @@
 #include <stdint.h>
 
 #define PROGRAM_FILE "../test/CPUTEST.COM"
+#define PROGRAM_FILE_2 "../test/8080EXM.COM"
+#define PROGRAM_FILE_3 "../test/TST8080.COM"
 #define LOAD_ADDR 0x0100
 
 int main(void) {
     FILE *file = fopen(PROGRAM_FILE, "rb");
     if (!file) {
-        perror("Cannot open CPUTEST.COM");
+        perror("Cannot open test file");
         return 1;
     }
 

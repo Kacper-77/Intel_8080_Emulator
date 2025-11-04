@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define STACK_MIN 0x0000
 
 const uint8_t t_states[256] = {
     4, 10, 7, 5, 5, 5, 7, 4, 4, 10, 7, 5, 5, 7, 4, 4,               // 0x00 - 0x0F
@@ -28,8 +29,8 @@ const uint8_t t_states[256] = {
 void cpu_init(CPU8080 *cpu) {
     memset(cpu, 0, sizeof(CPU8080));
     cpu->PC = 0x0000;
-    cpu->SP = 0x2400;
-    cpu->stack_base = 0x2000;
+    cpu->SP = 0xFFFF;
+    cpu->stack_base = cpu->SP;
     cpu->heap_base = 0x0200;
     cpu->heap_ptr = cpu->heap_base;
 
@@ -74,7 +75,7 @@ bool cpu_emulate(CPU8080 *cpu) {
 void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
     // CP/M exit trap
     if (cpu->PC == 0x0000) {
-        printf("\n[CP/M] Program terminated (CALL 0000h)\n");
+         printf("\n[CP/M] Program terminated cleanly at PC=%04X (SP=%04X)\n", cpu->PC, cpu->SP);
         cpu->halted = true;
         return;
     }
@@ -142,12 +143,12 @@ void* heap_alloc(CPU8080 *cpu, uint16_t size) {
 }
 
 void check_stack_bounds(CPU8080 *cpu) {
-    if (cpu->SP < cpu->stack_base) {
-        printf("❌ Stack underflow! SP=%04X, stack_base=%04X\n", cpu->SP, cpu->stack_base);
+    if (cpu->SP < STACK_MIN) {
+        printf("❌ Stack underflow! SP=%04X\n", cpu->SP);
         cpu->halted = true;
     }
-    if (cpu->SP > 0xFFFF) {
-        printf("\n❌ Stack overflow! SP=%04X, MaxSP=%04X\n", cpu->SP, 0xFFFF);
+    if (cpu->SP > cpu->stack_base) {
+        printf("❌ Stack overflow! SP=%04X (stack_base=%04X)\n", cpu->SP, cpu->stack_base);
         cpu->halted = true;
     }
 }

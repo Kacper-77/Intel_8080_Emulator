@@ -14,12 +14,7 @@ void call(uint8_t opcode, CPU8080 *cpu) {
 
 void ret(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
-    uint8_t low = cpu->memory[cpu->SP];
-    uint8_t high = cpu->memory[cpu->SP + 1];
-    uint16_t addr = (high << 8) | low;
-
-    cpu->SP += 2;
-    check_stack_bounds(cpu);
+    uint16_t addr = fetch_return_addr(cpu);
     cpu->PC = addr;
 }
 
@@ -74,7 +69,6 @@ void ret_conditional(uint8_t opcode, CPU8080 *cpu) {
 
     if (should_return) {
         uint16_t addr = fetch_return_addr(cpu);
-        cpu->SP += 2;
         cpu->PC = addr;
     } else {
         custom_cycle = true;

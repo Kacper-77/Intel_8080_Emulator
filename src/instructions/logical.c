@@ -25,7 +25,7 @@ void ani(uint8_t opcode, CPU8080 *cpu) {
 
     uint16_t result = cpu->A & value;
     cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, true);
+    update_flags_logical(result, cpu, false);
     cpu->PC += 2;
 }
 

@@ -3,9 +3,9 @@
 
 #define SET_ZSP(result, cpu) do { \
     uint8_t res = (result) & 0xFF; \
-    cpu->flags.Z  = (((result) & 0xFF) == 0); \
-    cpu->flags.S  = ((result) & 0x80) != 0; \
-    cpu->flags.P  = my_parity((result) & 0xFF); \
+    cpu->flags.Z  = (((res) & 0xFF) == 0); \
+    cpu->flags.S  = ((res) & 0x80) != 0; \
+    cpu->flags.P  = my_parity((res) & 0xFF); \
 } while (0)
 
 
@@ -13,36 +13,35 @@ uint8_t my_parity(uint8_t value) {
     value ^= value >> 4;
     value ^= value >> 2;
     value ^= value >> 1;
-    return value & 1;
+    return ~value & 1;
 }
 
-void update_flags_after_add(uint16_t result, uint8_t operand, CPU8080 *cpu, bool include_cy) {
+void update_flags_after_add(uint16_t result, uint8_t operand, uint8_t oldA, CPU8080 *cpu, bool include_cy) {
     bool old_cy = cpu->flags.CY;
+    uint8_t res8 = result & 0xFF;
 
-    SET_ZSP(result, cpu);
-    cpu->flags.CY = (result > 0xFF);  // Carry
-    if (include_cy) {
-        cpu->flags.AC = ((cpu->A & 0x0F) + (operand & 0x0F) + old_cy) > 0x0F;
-    } else {
-        cpu->flags.AC = ((cpu->A & 0x0F) + (operand & 0x0F)) > 0x0F; // Auxiliary Carry
-    }
-}
-
-void update_flags_after_inr_dcr(uint8_t result, uint8_t old_value ,CPU8080 *cpu, bool is_increment) {
-    SET_ZSP(result, cpu);
-    if (is_increment) {
-        cpu->flags.AC = ((old_value & 0x0F) + 1) > 0x0F;
-    } else {
-        cpu->flags.AC = (old_value & 0x0F) == 0;
-    }
+    SET_ZSP(res8, cpu);
+    cpu->flags.CY = (result > 0xFF);
+    cpu->flags.AC = ((oldA & 0x0F) + (operand & 0x0F) + (include_cy ? old_cy : 0)) > 0x0F;
 }
 
 void update_flags_after_sub(uint16_t a, uint8_t value, uint8_t borrow, CPU8080 *cpu) {
     uint16_t result = a - value - borrow;
-    
-    SET_ZSP(result, cpu);
+    uint8_t res8 = result & 0xFF;
+
+    SET_ZSP(res8, cpu);
     cpu->flags.CY = (a < (value + borrow));
-    cpu->flags.AC = ((a & 0x0F) < ((value + borrow) & 0x0F));
+    cpu->flags.AC = ((a & 0x0F) < ((value & 0x0F) + borrow));
+}
+
+void update_flags_after_inr_dcr(uint8_t result, uint8_t before, CPU8080 *cpu, bool is_inr) {
+    SET_ZSP(result, cpu);
+
+    if (is_inr) {
+        cpu->flags.AC = ((before & 0x0F) + 1) > 0x0F;
+    } else {
+        cpu->flags.AC = (before & 0x0F) == 0x00;
+    }
 }
 
 void update_flags_logical(uint16_t result, CPU8080 *cpu, bool cleared) {
