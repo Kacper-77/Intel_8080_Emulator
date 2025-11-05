@@ -36,21 +36,21 @@ void sub_sbb_generic(uint8_t opcode, CPU8080 *cpu) {
                     : *cpu->registers[reg_code];
     uint8_t borrow_in = (opcode & 0x08) ? cpu->flags.CY : 0;
 
-    alu_do_sub(cpu->A, val, borrow_in, cpu, true);
+    alu_do_sub(cpu->A, val, borrow_in, cpu);
     cpu->PC += 1;
 }
 
 void sui(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-    alu_do_sub(cpu->A, value, 0, cpu, true);
+    alu_do_sub(cpu->A, value, 0, cpu);
     cpu->PC += 2;
 }
 
 void sbi(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-    alu_do_sub(cpu->A, value, cpu->flags.CY, cpu, true);
+    alu_do_sub(cpu->A, value, cpu->flags.CY, cpu);
     cpu->PC += 2;
 }
 
@@ -108,7 +108,7 @@ void daa(uint8_t opcode, CPU8080 *cpu) {
     uint8_t result = (uint8_t)sum;
 
     cpu->A = result;
-    SET_ZSP(result, cpu);
+    set_ZSP(result, cpu);
     cpu->flags.AC = ((oldA ^ correction ^ result) & 0x10) != 0;
     cpu->flags.CY = cy;
 

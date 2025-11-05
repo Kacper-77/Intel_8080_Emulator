@@ -10,7 +10,7 @@
 #define LOAD_ADDR 0x0100
 
 int main(void) {
-    FILE *file = fopen(PROGRAM_FILE_2, "rb");
+    FILE *file = fopen(PROGRAM_FILE, "rb");
     if (!file) {
         perror("Cannot open test file");
         return 1;

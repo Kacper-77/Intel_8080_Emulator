@@ -21,7 +21,7 @@ void ani(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value = cpu->memory[cpu->PC + 1];
     uint8_t res = cpu->A & value;
     cpu->A = res;
-    SET_ZSP(res, cpu);
+    set_ZSP(res, cpu);
     cpu->flags.CY = 0;
     cpu->flags.AC = ((a | value) & 0x08) != 0;
     cpu->PC += 2;
@@ -44,7 +44,7 @@ void ori(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value = cpu->memory[cpu->PC + 1];
     uint8_t res = cpu->A | value;
     cpu->A = res;
-    SET_ZSP(res, cpu);
+    set_ZSP(res, cpu);
     cpu->flags.CY = 0;
     cpu->flags.AC = 0;
     cpu->PC += 2;
@@ -67,7 +67,7 @@ void xri(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value = cpu->memory[cpu->PC + 1];
     uint8_t res = cpu->A ^ value;
     cpu->A = res;
-    SET_ZSP(res, cpu);
+    set_ZSP(res, cpu);
     cpu->flags.CY = 0;
     cpu->flags.AC = 0;
     cpu->PC += 2;
@@ -89,7 +89,7 @@ void cmp_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->flags.AC = ((~(cpu->A ^ res8 ^ val)) & 0x10) != 0;
 
     // Z S P
-    SET_ZSP(res8, cpu);
+    set_ZSP(res8, cpu);
 
     cpu->PC += 1;
 }
@@ -102,7 +102,7 @@ void cpi(uint8_t opcode, CPU8080 *cpu) {
 
     cpu->flags.CY = (diff >> 8) & 1;
     cpu->flags.AC = ((~(cpu->A ^ res8 ^ value)) & 0x10) != 0;
-    SET_ZSP(res8, cpu);
+    set_ZSP(res8, cpu);
 
     cpu->PC += 2;
 }

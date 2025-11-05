@@ -9,14 +9,14 @@
 #define LOG_ALU(fmt, ...) (void)0
 #endif
 
-void SET_ZSP(uint8_t result, CPU8080* cpu) {
+void set_ZSP(uint8_t result, CPU8080* cpu) {
     uint8_t res = (result) & 0xFF;
     cpu->flags.Z  = (((res) & 0xFF) == 0);
     cpu->flags.S  = ((res) & 0x80) != 0;
     cpu->flags.P  = my_parity((res) & 0xFF);
 }
 
-uint8_t my_parity(uint8_t value) {
+static bool my_parity(uint8_t value) {
     value ^= value >> 4;
     value ^= value >> 2;
     value ^= value >> 1;
@@ -44,19 +44,15 @@ void alu_do_add(uint8_t a, uint8_t val, uint8_t carry_in, CPU8080 *cpu) {
     cpu->A = result;
 }
 
-void alu_do_sub(uint8_t a, uint8_t val, uint8_t borrow_in, CPU8080 *cpu, bool affect_a) {
+void alu_do_sub(uint8_t a, uint8_t val, uint8_t borrow_in, CPU8080 *cpu) {
     uint8_t inv_borrow = borrow_in ? 0 : 1; // !borrow!
     alu_do_add(a, (uint8_t)~val, inv_borrow, cpu);
 
     cpu->flags.CY = !cpu->flags.CY;
-
-    if (!affect_a) {
-        cpu->A = a;
-    }
 }
 
 void update_flags_after_inr_dcr(uint8_t result, uint8_t before, CPU8080 *cpu, bool is_inr) {
-    SET_ZSP(result, cpu);
+    set_ZSP(result, cpu);
     if (is_inr) {
         cpu->flags.AC = (result & 0xF) == 0;
     } else {
@@ -66,7 +62,7 @@ void update_flags_after_inr_dcr(uint8_t result, uint8_t before, CPU8080 *cpu, bo
 }
 
 void update_flags_logical(uint8_t a, uint8_t value, uint8_t result, CPU8080 *cpu, char op) {
-    SET_ZSP(result, cpu);
+    set_ZSP(result, cpu);
     cpu->flags.CY = 0;
 
     switch (op) {
