@@ -89,6 +89,7 @@ void jmp(uint8_t opcode, CPU8080 *cpu) {
 }
 
 void push_generic(uint8_t opcode, CPU8080 *cpu) {
+    // PSW flag byte format: S Z 0 AC 0 P 1 CY
     uint8_t flags_byte =
     (cpu->flags.S  << 7) |
     (cpu->flags.Z  << 6) |
@@ -128,6 +129,7 @@ void pop_generic(uint8_t opcode, CPU8080 *cpu) {
 
     check_stack_bounds(cpu);
 
+    // PSW flag byte format: S Z 0 AC 0 P 1 CY
     switch (opcode) {
         case 0xC1: cpu->C = low; cpu->B = high; break;
         case 0xD1: cpu->E = low; cpu->D = high; break;

@@ -6,94 +6,51 @@
 
 void add_adc_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t value;
+    uint8_t val = (reg_code == 6)
+                    ? cpu->memory[get_rpair(cpu->H, cpu->L)]
+                    : *cpu->registers[reg_code];
+    uint8_t carry_in = (opcode & 0x08) ? cpu->flags.CY : 0;
 
-    if (reg_code == 6) {
-        uint16_t addr = get_rpair(cpu->H, cpu->L);
-        value = cpu->memory[addr];
-    } else {
-        value = *cpu->registers[reg_code];
-    }
-
-    bool include_cy = (opcode & 0x08) != 0;
-    uint8_t oldA = cpu->A;
-    uint16_t result = (uint16_t)oldA + (uint16_t)value + (include_cy ? cpu->flags.CY : 0);
-
-    update_flags_after_add(result, value, oldA, cpu, include_cy);
-
-    cpu->A = result & 0xFF;
+    alu_do_add(cpu->A, val, carry_in, cpu);
     cpu->PC += 1;
-    // printf("ADD/ADC: PC=%04X opcode=%02X A=%02X operand=%02X result=%02X CY=%d AC=%d Z=%d S=%d P=%d\n",
-    //     cpu->PC-1, opcode, oldA, value, cpu->A,
-    //     cpu->flags.CY, cpu->flags.AC, cpu->flags.Z, cpu->flags.S, cpu->flags.P);
 }
-
 
 void adi(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-    uint8_t oldA = cpu->A;
-    uint16_t result = (uint16_t)oldA + (uint16_t)value;
-
-    update_flags_after_add(result, value, oldA, cpu, false);
-
-    cpu->A = result & 0xFF;
+    alu_do_add(cpu->A, value, 0, cpu);
     cpu->PC += 2;
-
-    printf("ADI: PC=%04X opcode=%02X A=%02X operand=%02X result=%02X CY=%d AC=%d Z=%d S=%d P=%d\n",
-           cpu->PC-2, opcode, oldA, value, cpu->A,
-           cpu->flags.CY, cpu->flags.AC, cpu->flags.Z, cpu->flags.S, cpu->flags.P);
 }
-
 
 void aci(uint8_t opcode, CPU8080 *cpu) {
+    (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-    uint8_t oldA = cpu->A;
-    uint16_t result = (uint16_t)oldA + (uint16_t)value + cpu->flags.CY;
-    update_flags_after_add(result, value, oldA, cpu, true);
-    cpu->A = result & 0xFF;
+    alu_do_add(cpu->A, value, cpu->flags.CY, cpu);
     cpu->PC += 2;
 }
-
 
 void sub_sbb_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t value;
+    uint8_t val = (reg_code == 6)
+                    ? cpu->memory[get_rpair(cpu->H, cpu->L)]
+                    : *cpu->registers[reg_code];
+    uint8_t borrow_in = (opcode & 0x08) ? cpu->flags.CY : 0;
 
-    if (reg_code == 6) {
-        uint16_t addr = get_rpair(cpu->H, cpu->L);
-        value = cpu->memory[addr];
-        custom_cycle = true;
-        cpu->cycles += 7;
-    } else {
-        value = *cpu->registers[reg_code];
-    }
-
-    uint8_t borrow = (opcode & 0x08) ? cpu->flags.CY : 0;
-    uint16_t result = cpu->A - value - borrow;
-    update_flags_after_sub(cpu->A, value, borrow, cpu);
-    cpu->A = result & 0xFF;
+    alu_do_sub(cpu->A, val, borrow_in, cpu, true);
     cpu->PC += 1;
 }
 
 void sui(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-
-    uint8_t result = cpu->A - value;
-    update_flags_after_sub(cpu->A, value, 0, cpu);
-    
-    cpu->A = result;
+    alu_do_sub(cpu->A, value, 0, cpu, true);
     cpu->PC += 2;
 }
 
 void sbi(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-
-    uint8_t result = cpu->A - value - cpu->flags.CY;
-    update_flags_after_sub(cpu->A, value, cpu->flags.CY, cpu);
-
-    cpu->A = result;
+    alu_do_sub(cpu->A, value, cpu->flags.CY, cpu, true);
     cpu->PC += 2;
 }
 
@@ -136,32 +93,27 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
 void daa(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t oldA = cpu->A;
+    bool cy = cpu->flags.CY;
     uint8_t correction = 0;
-    bool set_carry = false;
+    uint8_t lsb = oldA & 0x0F;
+    uint8_t msb = oldA >> 4;
 
-    if ((oldA & 0x0F) > 9 || cpu->flags.AC)
-        correction |= 0x06;
-
-    if (oldA > 0x99 || cpu->flags.CY || ((oldA + correction) > 0x99)) {
-        correction |= 0x60;
-        set_carry = true;
+    if (cpu->flags.AC || lsb > 9) correction += 0x06;
+    if (cpu->flags.CY || msb > 9 || (msb >= 9 && lsb > 9)) {
+        correction += 0x60;
+        cy = true;
     }
 
-    uint16_t result = (uint16_t)oldA + (uint16_t)correction;
-    cpu->A = result & 0xFF;
+    uint16_t sum = (uint16_t)oldA + (uint16_t)correction;
+    uint8_t result = (uint8_t)sum;
 
-
-    cpu->flags.Z = (cpu->A == 0);
-    cpu->flags.S = (cpu->A & 0x80) != 0;
-    uint8_t v = cpu->A;
-    v ^= v >> 4; v ^= v >> 2; v ^= v >> 1; cpu->flags.P = (~v) & 1;
-
-    cpu->flags.CY = set_carry;
+    cpu->A = result;
+    SET_ZSP(result, cpu);
     cpu->flags.AC = ((oldA ^ correction ^ result) & 0x10) != 0;
+    cpu->flags.CY = cy;
 
     cpu->PC += 1;
 }
-
 
 void dad_generic(uint8_t opcode, CPU8080 *cpu) {
     uint16_t HL = get_rpair(cpu->H, cpu->L);
@@ -177,12 +129,9 @@ void dad_generic(uint8_t opcode, CPU8080 *cpu) {
 
     uint32_t sum = (uint32_t)HL + (uint32_t)value;
     set_rpair((uint16_t)(sum & 0xFFFF), &cpu->H, &cpu->L);
-    cpu->flags.CY = (sum & 0x10000) != 0;   // <-- poprawne ustawianie carry
+    cpu->flags.CY = (sum & 0x10000) != 0;
 
     cpu->PC += 1;
-
-    // printf("DAD: PC=%04X opcode=%02X HL=%04X value=%04X => result=%06X CY=%d\n",
-    //        cpu->PC, opcode, HL, value, sum, cpu->flags.CY);
 }
 
 void inx_generic(uint8_t opcode, CPU8080 *cpu) {

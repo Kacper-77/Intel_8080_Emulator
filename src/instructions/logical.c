@@ -4,102 +4,109 @@
 
 void ana_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t value;
-    
-    if (reg_code == 6) {
-        uint16_t addr = get_rpair(cpu->H, cpu->L);
-        value = cpu->memory[addr];
-    } else {
-        value = *cpu->registers[reg_code];
-    }
-
-    uint16_t result = cpu->A & value;
-    cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, false);
+    uint8_t val = (reg_code == 6)
+                    ? cpu->memory[get_rpair(cpu->H, cpu->L)]
+                    : *cpu->registers[reg_code];
+    uint8_t oldA = cpu->A;
+    uint8_t result = oldA & val;
+    cpu->A = result;
+    // Z S P i CY=0, AC = ((oldA | val) & 0x08) != 0
+    update_flags_logical(oldA, val, result, cpu, '&');
     cpu->PC += 1;
 }
 
 void ani(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
+    uint8_t a = cpu->A;
     uint8_t value = cpu->memory[cpu->PC + 1];
-
-    uint16_t result = cpu->A & value;
-    cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, false);
+    uint8_t res = cpu->A & value;
+    cpu->A = res;
+    SET_ZSP(res, cpu);
+    cpu->flags.CY = 0;
+    cpu->flags.AC = ((a | value) & 0x08) != 0;
     cpu->PC += 2;
 }
 
 void ora_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t value;
-
-    if (reg_code == 6) {
-        uint16_t addr = get_rpair(cpu->H, cpu->L);
-        value = cpu->memory[addr];
-    } else {
-        value = *cpu->registers[reg_code];
-    }
-
-    uint16_t result = cpu->A | value;
-    cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, true);
+    uint8_t val = (reg_code == 6)
+                    ? cpu->memory[get_rpair(cpu->H, cpu->L)]
+                    : *cpu->registers[reg_code];
+    uint8_t oldA = cpu->A;
+    uint8_t result = oldA | val;
+    cpu->A = result;
+    update_flags_logical(oldA, val, result, cpu, '|');
     cpu->PC += 1;
 }
 
 void ori(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-
-    uint16_t result = cpu->A | value;
-    cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, true);
+    uint8_t res = cpu->A | value;
+    cpu->A = res;
+    SET_ZSP(res, cpu);
+    cpu->flags.CY = 0;
+    cpu->flags.AC = 0;
     cpu->PC += 2;
 }
 
 void xra_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t value;
-
-    if (reg_code == 6) {
-        uint16_t addr = get_rpair(cpu->H, cpu->L);
-        value = cpu->memory[addr];
-    } else {
-        value = *cpu->registers[reg_code];
-    }
-
-    uint16_t result = cpu->A ^ value;
-    cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, true);
+    uint8_t val = (reg_code == 6)
+                    ? cpu->memory[get_rpair(cpu->H, cpu->L)]
+                    : *cpu->registers[reg_code];
+    uint8_t oldA = cpu->A;
+    uint8_t result = oldA ^ val;
+    cpu->A = result;
+    update_flags_logical(oldA, val, result, cpu, '^');
     cpu->PC += 1;
 }
 
 void xri(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
-
-    uint16_t result = cpu->A ^ value;
-    cpu->A = result & 0xFF;
-    update_flags_logical(result, cpu, true);
+    uint8_t res = cpu->A ^ value;
+    cpu->A = res;
+    SET_ZSP(res, cpu);
+    cpu->flags.CY = 0;
+    cpu->flags.AC = 0;
     cpu->PC += 2;
 }
 
 void cmp_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t value = (reg_code == 6)
+    uint8_t val = (reg_code == 6)
                     ? cpu->memory[get_rpair(cpu->H, cpu->L)]
                     : *cpu->registers[reg_code];
-    
-    update_flags_after_sub(cpu->A, value, 0, cpu);
+
+    int16_t diff = (int16_t)cpu->A - (int16_t)val;
+    uint8_t res8 = (uint8_t)diff;
+
+    // CF = borrow happened
+    cpu->flags.CY = (diff >> 8) & 1;
+
+    // AC (half borrow) as in reference: ~(A ^ result ^ val) & 0x10
+    cpu->flags.AC = ((~(cpu->A ^ res8 ^ val)) & 0x10) != 0;
+
+    // Z S P
+    SET_ZSP(res8, cpu);
+
     cpu->PC += 1;
 }
 
 void cpi(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
+    int16_t diff = (int16_t)cpu->A - (int16_t)value;
+    uint8_t res8 = (uint8_t)diff;
 
-    update_flags_after_sub(cpu->A, value, 0, cpu);
+    cpu->flags.CY = (diff >> 8) & 1;
+    cpu->flags.AC = ((~(cpu->A ^ res8 ^ value)) & 0x10) != 0;
+    SET_ZSP(res8, cpu);
+
     cpu->PC += 2;
 }
+
 
 void rrc(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
@@ -157,6 +164,6 @@ void cmc(uint8_t opcode, CPU8080 *cpu) {
 
 void stc(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
-    cpu->flags.CY = true;
+    cpu->flags.CY = 1;
     cpu->PC += 1;
 }
