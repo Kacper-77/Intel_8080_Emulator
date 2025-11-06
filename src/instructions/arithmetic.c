@@ -6,12 +6,12 @@
 
 void add_adc_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
-    uint8_t val = (reg_code == 6)
+    uint8_t value = (reg_code == 6)
                     ? cpu->memory[get_rpair(cpu->H, cpu->L)]
                     : *cpu->registers[reg_code];
     uint8_t carry_in = (opcode & 0x08) ? cpu->flags.CY : 0;
 
-    alu_do_add(cpu->A, val, carry_in, cpu);
+    alu_do_add(cpu->A, value, carry_in, cpu);
     cpu->PC += 1;
 }
 

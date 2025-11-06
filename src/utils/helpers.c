@@ -9,6 +9,7 @@
 #define LOG_ALU(fmt, ...) (void)0
 #endif
 
+// Set Z, S and P flags - method is universal
 void set_ZSP(uint8_t result, CPU8080* cpu) {
     uint8_t res = (result) & 0xFF;
     cpu->flags.Z  = (((res) & 0xFF) == 0);
@@ -16,6 +17,7 @@ void set_ZSP(uint8_t result, CPU8080* cpu) {
     cpu->flags.P  = my_parity((res) & 0xFF);
 }
 
+// Check parity of value
 static bool my_parity(uint8_t value) {
     value ^= value >> 4;
     value ^= value >> 2;
@@ -23,27 +25,29 @@ static bool my_parity(uint8_t value) {
     return ~value & 1;
 }
 
-bool carry(int bit_no, uint8_t a, uint8_t val, bool cy) {
+// Check carry by position (bit_no)
+bool is_carry(int bit_no, uint8_t a, uint8_t val, bool cy) {
   int16_t result = a + val + cy;
   int16_t carry = result ^ a ^ val;
   return carry & (1 << bit_no);
 }
 
+// Update A and set flags
 void alu_do_add(uint8_t a, uint8_t val, uint8_t carry_in, CPU8080 *cpu) {
     uint16_t sum = (uint16_t)a + (uint16_t)val + (uint16_t)carry_in;
     uint8_t result = (uint8_t)sum;
 
     // CY and AC before ZSP!
-    cpu->flags.CY = (carry(8, a, val, carry_in) != 0);
-    cpu->flags.AC = (carry(4, a, val, carry_in) != 0);
+    cpu->flags.CY = (is_carry(8, a, val, carry_in) != 0);
+    cpu->flags.AC = (is_carry(4, a, val, carry_in) != 0);
 
-    cpu->flags.Z = (result == 0);
-    cpu->flags.S = (result & 0x80) != 0;
-    cpu->flags.P = my_parity(result);
+    // Z, S, P
+    set_ZSP(result, cpu);
 
     cpu->A = result;
 }
 
+// Update A and set flags
 void alu_do_sub(uint8_t a, uint8_t val, uint8_t borrow_in, CPU8080 *cpu) {
     uint8_t inv_borrow = borrow_in ? 0 : 1; // !borrow!
     alu_do_add(a, (uint8_t)~val, inv_borrow, cpu);
@@ -51,6 +55,7 @@ void alu_do_sub(uint8_t a, uint8_t val, uint8_t borrow_in, CPU8080 *cpu) {
     cpu->flags.CY = !cpu->flags.CY;
 }
 
+// Update register and set flags
 void update_flags_after_inr_dcr(uint8_t result, uint8_t before, CPU8080 *cpu, bool is_inr) {
     set_ZSP(result, cpu);
     if (is_inr) {
@@ -61,6 +66,7 @@ void update_flags_after_inr_dcr(uint8_t result, uint8_t before, CPU8080 *cpu, bo
     // CY not affected!
 }
 
+// Update flags after logical instructions
 void update_flags_logical(uint8_t a, uint8_t value, uint8_t result, CPU8080 *cpu, char op) {
     set_ZSP(result, cpu);
     cpu->flags.CY = 0;
@@ -77,19 +83,23 @@ void update_flags_logical(uint8_t a, uint8_t value, uint8_t result, CPU8080 *cpu
     }
 }
 
+// Get pair of registers
 uint16_t get_rpair(uint8_t high, uint8_t low) {
     return (high << 8) | low;
 }
 
+// Set pair of registers
 void set_rpair(uint16_t value, uint8_t *high, uint8_t *low) {
     *high = (value >> 8) & 0xFF;
     *low = value & 0xFF;
 }
 
+// Get address immediately
 uint16_t fetch_addr(CPU8080 *cpu) {
     return cpu->memory[cpu->PC + 1] | (cpu->memory[cpu->PC + 2] << 8);
 }
 
+// Set return address - STACK!
 void set_return_addr(uint16_t addr, CPU8080 *cpu) {
     cpu->SP--;
     cpu->memory[cpu->SP] = (addr >> 8) & 0xFF; // hi byte
@@ -97,6 +107,7 @@ void set_return_addr(uint16_t addr, CPU8080 *cpu) {
     cpu->memory[cpu->SP] = addr & 0xFF;        // lo byte
 }
 
+// Get return address from STACK!
 uint16_t fetch_return_addr(CPU8080 *cpu) {
     uint16_t lo = cpu->memory[cpu->SP++];
     uint16_t hi = cpu->memory[cpu->SP++];
