@@ -9,7 +9,7 @@ void nop(uint8_t opcode, CPU8080 *cpu) {
 
 void hlt(uint8_t opcode, CPU8080 *cpu) {
     custom_cycle = true;
-    cpu->cycles += t_states[opcode];
+    cpu->cycles += 4;
     cpu->halted = true;
 }
 

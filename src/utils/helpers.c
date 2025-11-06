@@ -9,6 +9,12 @@
 #define LOG_ALU(fmt, ...) (void)0
 #endif
 
+// DEBUG HELPER
+static void print_flags(const CPU8080* cpu) {
+    printf("  [PC=%04X Z=%d S=%d P=%d CY=%d AC=%d ]\n",
+            cpu->PC, cpu->flags.Z, cpu->flags.S, cpu->flags.P, cpu->flags.CY, cpu->flags.AC);
+}
+
 // Set Z, S and P flags - method is universal
 void set_ZSP(uint8_t result, CPU8080* cpu) {
     uint8_t res = (result) & 0xFF;
@@ -45,6 +51,9 @@ void alu_do_add(uint8_t a, uint8_t val, uint8_t carry_in, CPU8080 *cpu) {
     set_ZSP(result, cpu);
 
     cpu->A = result;
+    LOG_ALU("[ADD] A=%02X val=%02X carry_in=%d -> result=%02X  ",
+        a, val, carry_in, result);
+    if (ALU_DEBUG) print_flags(cpu);
 }
 
 // Update A and set flags
@@ -53,6 +62,9 @@ void alu_do_sub(uint8_t a, uint8_t val, uint8_t borrow_in, CPU8080 *cpu) {
     alu_do_add(a, (uint8_t)~val, inv_borrow, cpu);
 
     cpu->flags.CY = !cpu->flags.CY;
+    LOG_ALU("[SUB] A=%02X val=%02X borrow_in=%d  ",
+        a, val, borrow_in);
+    if (ALU_DEBUG) print_flags(cpu);
 }
 
 // Update register and set flags
@@ -64,6 +76,9 @@ void update_flags_after_inr_dcr(uint8_t result, uint8_t before, CPU8080 *cpu, bo
         cpu->flags.AC = !((result & 0xF) == 0xF);
     }
     // CY not affected!
+    LOG_ALU("[INR/DCR] result=%02X before=%02X  ",
+        result, before);
+    if (ALU_DEBUG) print_flags(cpu);
 }
 
 // Update flags after logical instructions
@@ -71,16 +86,14 @@ void update_flags_logical(uint8_t a, uint8_t value, uint8_t result, CPU8080 *cpu
     set_ZSP(result, cpu);
     cpu->flags.CY = 0;
 
-    switch (op) {
-        case '&':  // AND / ANI
-            cpu->flags.AC = ((a | value) & 0x08) != 0;
-            break;
-        case '|':  // OR / ORI
-        case '^':  // XOR / XRI
-        default:
-            cpu->flags.AC = 0;
-            break;
+    if (op == '&') {
+        cpu->flags.AC = ((a | value) & 0x08) != 0;
+    } else {
+        cpu->flags.AC = 0;
     }
+    LOG_ALU("[LOGICAL] A=%02X val=%02X result=%d  ",
+        a, value, result);
+    if (ALU_DEBUG) print_flags(cpu);
 }
 
 // Get pair of registers

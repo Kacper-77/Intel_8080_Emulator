@@ -20,7 +20,6 @@ InstructionFunc instruction_table[256] = {0};
 bool custom_cycle = false;
 
 void init_instruction_table(void) {
-
     SET_RANGE_OP(0x40, 0x7F, mov_generic);
     SET_OP(mvi_generic, 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E);
     SET_OP(lxi_generic, 0x01, 0x11, 0x21, 0x31);
@@ -77,10 +76,4 @@ void init_instruction_table(void) {
     instruction_table[0xE9] = pchl;
     instruction_table[0xDB] = handle_in;
     instruction_table[0xD3] = handle_out;
-
-    // Z80 - need to be ignored for CPUTEST.COM
-    instruction_table[0xD9] = nop;
-    instruction_table[0xDD] = nop;
-    instruction_table[0xFD] = nop;
-    instruction_table[0xED] = nop;
 }

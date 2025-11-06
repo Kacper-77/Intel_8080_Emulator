@@ -42,7 +42,7 @@ void cpu_init(CPU8080 *cpu);
 bool cpu_emulate(CPU8080 *cpu);
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr);
 
-extern const uint8_t t_states[256];
+static const uint8_t t_states[256];
 void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode);
 void trigger_trap(CPU8080 *cpu);
 void execute_instruction(CPU8080 *cpu, uint8_t opcode);

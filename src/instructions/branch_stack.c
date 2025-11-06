@@ -156,8 +156,8 @@ void jmp_conditional(uint8_t opcode, CPU8080 *cpu) {
         case 0xC2: should_jump = !cpu->flags.Z; break; // JNZ
         case 0xDA: should_jump = cpu->flags.CY; break; // JC
         case 0xD2: should_jump = !cpu->flags.CY;break; // JNC
-        case 0xFA: should_jump = cpu->flags.S == 0; break; // JP
-        case 0xF2: should_jump = cpu->flags.S == 1; break; // JM
+        case 0xFA: should_jump = cpu->flags.S == 1; break; // JP
+        case 0xF2: should_jump = cpu->flags.S == 0; break; // JM
         case 0xEA: should_jump = cpu->flags.P;  break; // JPE
         case 0xE2: should_jump = !cpu->flags.P; break; // JPO
         default: return;

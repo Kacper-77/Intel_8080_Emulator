@@ -98,9 +98,9 @@ void daa(uint8_t opcode, CPU8080 *cpu) {
     uint8_t lsb = oldA & 0x0F;
     uint8_t msb = oldA >> 4;
 
-    if (cpu->flags.AC || lsb > 9) correction += 0x06;
+    if (cpu->flags.AC || lsb > 9) correction |= 0x06;
     if (cpu->flags.CY || msb > 9 || (msb >= 9 && lsb > 9)) {
-        correction += 0x60;
+        correction |= 0x60;
         cy = true;
     }
 
