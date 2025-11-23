@@ -10,7 +10,10 @@ void ana_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t oldA = cpu->A;
     uint8_t result = oldA & val;
     cpu->A = result;
+
+    // Set flags
     update_flags_logical(oldA, val, result, cpu, '&');
+    
     cpu->PC += 1;
 }
 
@@ -20,8 +23,10 @@ void ani(uint8_t opcode, CPU8080 *cpu) {
     uint8_t value = cpu->memory[cpu->PC + 1];
     uint8_t result = cpu->A & value;
     cpu->A = result;
-    set_ZSP(result, cpu);
+
+    // Set flags
     update_flags_logical(oldA, value, result, cpu, '&');
+
     cpu->PC += 2;
 }
 
@@ -80,13 +85,9 @@ void cmp_generic(uint8_t opcode, CPU8080 *cpu) {
     int16_t diff = (int16_t)cpu->A - (int16_t)value;
     uint8_t res8 = (uint8_t)diff;
 
-    // CF = borrow happened
+    // Set flags
     cpu->flags.CY = (diff >> 8) & 1;
-
-    // AC
     cpu->flags.AC = ((~(cpu->A ^ res8 ^ value)) & 0x10) != 0;
-
-    // Z S P
     set_ZSP(res8, cpu);
 
     cpu->PC += 1;
@@ -98,6 +99,7 @@ void cpi(uint8_t opcode, CPU8080 *cpu) {
     int16_t diff = (int16_t)cpu->A - (int16_t)value;
     uint8_t res8 = (uint8_t)diff;
 
+    // Set flags
     cpu->flags.CY = (diff >> 8) & 1;
     cpu->flags.AC = ((~(cpu->A ^ res8 ^ value)) & 0x10) != 0;
     set_ZSP(res8, cpu);

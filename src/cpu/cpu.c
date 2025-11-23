@@ -29,9 +29,9 @@ static const uint8_t t_states[256] = {
 void cpu_init(CPU8080 *cpu) {
     memset(cpu, 0, sizeof(CPU8080));
     cpu->PC = 0x0000;
-    cpu->SP = 0xFFFF;
+    cpu->SP = 0xFFFE;
     cpu->stack_base = cpu->SP;
-    cpu->heap_base = 0x0200;
+    cpu->heap_base = 0x2000;
     cpu->heap_ptr = cpu->heap_base;
 
     cpu->halted = false;

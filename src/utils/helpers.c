@@ -86,7 +86,7 @@ void update_flags_logical(uint8_t a, uint8_t value, uint8_t result, CPU8080 *cpu
     set_ZSP(result, cpu);
     cpu->flags.CY = 0;
 
-    if (op == '&') {
+    if (op == '&') {  // ANA / ANI only
         cpu->flags.AC = ((a | value) & 0x08) != 0;
     } else {
         cpu->flags.AC = 0;
