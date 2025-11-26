@@ -56,8 +56,6 @@ void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint1
 }
 
 bool cpu_emulate(CPU8080 *cpu) {
-    if (cpu->halted) return false;
-
     if (cpu->pending_interrupt && cpu->interrupt_enabled) {
         cpu->interrupt_enabled = false;
         cpu->pending_interrupt = false;
@@ -66,6 +64,10 @@ bool cpu_emulate(CPU8080 *cpu) {
         cpu->is_interrupt = false;
         return true;
     }
+
+    // CPU halted, waiting for interrupt. HLT does not block interrupts.
+    if (cpu->halted) return false;
+
     uint8_t opcode = cpu->memory[cpu->PC];
     // printf("PC: 0x%04X, Opcode: 0x%02X, Cycles: %llu\n", cpu->PC, opcode, cpu->cycles);
     execute_instruction(cpu, opcode);
