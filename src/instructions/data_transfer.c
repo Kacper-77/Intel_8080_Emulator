@@ -3,6 +3,8 @@
 #include "stdint.h"
 #include <stdio.h>
 
+
+// Move value from source register to destinated register
 void mov_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t dest_code = (opcode >> 3) & 0x07;
     uint8_t src_code  = opcode & 0x07;
@@ -18,6 +20,7 @@ void mov_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+// Move value of memory[PC + 1] to destinated register
 void mvi_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = (opcode >> 3) & 0x07;
     uint8_t data = cpu->memory[cpu->PC + 1];

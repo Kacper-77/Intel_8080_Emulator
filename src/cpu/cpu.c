@@ -26,6 +26,9 @@ static const uint8_t t_states[256] = {
     11, 10, 10, 4,  17, 11, 7,  11, 11, 5,  10, 4,  17, 11, 7,  11  // 0xF0 - 0xFF
 };
 
+// INIT AND MAIN LOOP
+
+// Init whole CPU
 void cpu_init(CPU8080 *cpu) {
     memset(cpu, 0, sizeof(CPU8080));
     cpu->PC = 0x0000;
@@ -46,15 +49,17 @@ void cpu_init(CPU8080 *cpu) {
     cpu->registers[3] = &cpu->E;
     cpu->registers[4] = &cpu->H;
     cpu->registers[5] = &cpu->L;
-    cpu->registers[6] = NULL;
+    cpu->registers[6] = NULL;     // important - reg M (H-L)
     cpu->registers[7] = &cpu->A;
 }
 
+// Load program to CPU
 void cpu_load_program(CPU8080 *cpu, const uint8_t *program, uint16_t size, uint16_t load_addr) {
     memcpy(&cpu->memory[load_addr], program, size);
     cpu->PC = load_addr;
 }
 
+// Main loop 
 bool cpu_emulate(CPU8080 *cpu) {
     if (cpu->pending_interrupt && cpu->interrupt_enabled) {
         cpu->interrupt_enabled = false;
@@ -74,6 +79,7 @@ bool cpu_emulate(CPU8080 *cpu) {
     return true;
 }
 
+// Execute instruction
 void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
     // CP/M exit trap
     if (cpu->PC == 0x0000) {
@@ -111,7 +117,9 @@ void execute_instruction(CPU8080 *cpu, uint8_t opcode) {
     }
 }
 
+// INTERRUPTS 
 
+// Request interrupt
 void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode) {
     if (cpu->interrupt_enabled) {
         cpu->pending_interrupt = true;
@@ -120,11 +128,14 @@ void request_interrupt(CPU8080 *cpu, uint8_t rst_opcode) {
     }
 }
 
+// Trap
 void trigger_trap(CPU8080 *cpu) {
     uint16_t return_addr = cpu->PC;
     set_return_addr(return_addr, cpu);
     cpu->PC = 0x24; 
 }
+
+// STACK AND HEAP
 
 bool check_heap_bounds(CPU8080 *cpu, uint16_t size) {
     if (cpu->heap_ptr + size >= cpu->stack_base) {

@@ -4,6 +4,11 @@
 #include "../utils/helpers.h"
 #include "../decoder/decoder.h"
 
+/*
+    Unconditionally transfers program control to a subroutine
+    by pushing the 16-bit Program Counter (PC) onto the stack
+    and then loading the 16-bit address specified in the instruction into the PC.
+*/
 void call(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint16_t addr = fetch_addr(cpu);
@@ -12,13 +17,19 @@ void call(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC = addr;
 }
 
+// pops a 16-bit return address from the stack
 void ret(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint16_t addr = fetch_return_addr(cpu);
     cpu->PC = addr;
 }
 
+/*
+    Byte instruction used to handle interrupts,
+    pushing the Program Counter (PC) onto the stack and jumping to specific low-memory addresses.
+*/ 
 void rst_generic(uint8_t opcode, CPU8080 *cpu) {
+    // If interrupt is external we don't want to set return address as PC + 1 only PC
     uint16_t return_addr = cpu->PC + (cpu->is_interrupt ? 0 : 1);
     set_return_addr(return_addr, cpu);
 
@@ -77,17 +88,32 @@ void ret_conditional(uint8_t opcode, CPU8080 *cpu) {
     }
 }
 
+/*
+    Direct control transfer, meaning it moves the 16-bit address
+    stored in the HL register pair directly into the Program Counter (PC),
+    causing an immediate jump to that new memory location for execution.
+*/
 void pchl(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->PC = get_rpair(cpu->H, cpu->L);
 }
 
+/*
+    Unconditionally transfers program control to a new memory address,
+    overwriting the Program Counter (PC) to change the execution flow.
+*/
 void jmp(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint16_t addr = fetch_addr(cpu);
     cpu->PC = addr;
 }
 
+
+/*
+    Pushes a 16-bit register pair (BC, DE, HL, or the Processor Status Word/Flags register)
+    onto the stack, first decrementing the Stack Pointer (SP) by two,
+    then storing the high byte, and then the low byte.
+*/
 void push_generic(uint8_t opcode, CPU8080 *cpu) {
     // PSW flag byte format: S Z 0 AC 0 P 1 CY
     uint8_t flags_byte =
@@ -122,6 +148,10 @@ void push_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+/*
+    Retrieves a 16-bit value from the top of the stack
+    and loads it into a specified register pair.
+*/
 void pop_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t low = cpu->memory[cpu->SP];
     uint8_t high = cpu->memory[cpu->SP + 1];
@@ -152,14 +182,14 @@ void jmp_conditional(uint8_t opcode, CPU8080 *cpu) {
     bool should_jump = false;
 
     switch (opcode) {
-        case 0xCA: should_jump = cpu->flags.Z;  break; // JZ
-        case 0xC2: should_jump = !cpu->flags.Z; break; // JNZ
-        case 0xDA: should_jump = cpu->flags.CY; break; // JC
-        case 0xD2: should_jump = !cpu->flags.CY;break; // JNC
+        case 0xCA: should_jump = cpu->flags.Z;  break;     // JZ
+        case 0xC2: should_jump = !cpu->flags.Z; break;     // JNZ
+        case 0xDA: should_jump = cpu->flags.CY; break;     // JC
+        case 0xD2: should_jump = !cpu->flags.CY;break;     // JNC
         case 0xFA: should_jump = cpu->flags.S == 1; break; // JP
         case 0xF2: should_jump = cpu->flags.S == 0; break; // JM
-        case 0xEA: should_jump = cpu->flags.P;  break; // JPE
-        case 0xE2: should_jump = !cpu->flags.P; break; // JPO
+        case 0xEA: should_jump = cpu->flags.P;  break;     // JPE
+        case 0xE2: should_jump = !cpu->flags.P; break;     // JPO
         default: return;
     }
     if (should_jump) {
@@ -169,12 +199,17 @@ void jmp_conditional(uint8_t opcode, CPU8080 *cpu) {
     }
 }
 
+/*
+    Single-byte instruction that loads the 16-bit value
+    from the HL register pair directly into the SP register.
+*/
 void sphl(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     cpu->SP = get_rpair(cpu->H, cpu->L);
     cpu->PC += 1;
 }
 
+// Exchanges the register pair HL with the last item pushed on the stack
 void xthl(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t tempH = cpu->H;

@@ -4,6 +4,10 @@
 #include "../utils/helpers.h"
 #include <stdio.h>
 
+/*
+    add: A += reg
+    adc: A += reg + carry
+*/
 void add_adc_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
     uint8_t value = (reg_code == 6)
@@ -15,6 +19,7 @@ void add_adc_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+// adi: A += value of memory[PC + 1]
 void adi(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
@@ -22,6 +27,7 @@ void adi(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 2;
 }
 
+// aci: A += value of memory[PC + 1] + carry
 void aci(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
@@ -29,6 +35,10 @@ void aci(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 2;
 }
 
+/*
+    sub: A -= reg
+    sbb: a -= reg - borrow
+*/
 void sub_sbb_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t reg_code = opcode & 0x07;
     uint8_t val = (reg_code == 6)
@@ -40,6 +50,7 @@ void sub_sbb_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+// sui: A -= value of memory[PC + 1]
 void sui(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
@@ -47,6 +58,7 @@ void sui(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 2;
 }
 
+// sbi: A -= value of memory[PC + 1] - borrow
 void sbi(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t value = cpu->memory[cpu->PC + 1];
@@ -54,6 +66,10 @@ void sbi(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 2;
 }
 
+/* 
+    Increase any reg by 1
+    example: B = 0b10 + 1 = 0b11
+*/
 void inr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t result, before;
     uint8_t reg_code = (opcode >> 3) & 0x07;
@@ -72,6 +88,7 @@ void inr_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+// Decrease any reg by 1
 void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
     uint8_t result, before;
     uint8_t reg_code = (opcode >> 3) & 0x07;
@@ -90,6 +107,10 @@ void dcr_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+/*
+    Adjusts the accumulator's binary content
+    into Binary-Coded Decimal (BCD) format after an addition.
+*/
 void daa(uint8_t opcode, CPU8080 *cpu) {
     (void)opcode;
     uint8_t oldA = cpu->A;
@@ -115,6 +136,12 @@ void daa(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+/*
+    performs 16-bit addition, adding a specified 16-bit register pair (like BC, DE, HL)
+    or the Stack Pointer (SP) to the HL register pair (High-Low),
+    often used as an accumulator and storing the 16-bit result back into HL,
+    setting the Carry flag for multi-byte arithmetic
+*/
 void dad_generic(uint8_t opcode, CPU8080 *cpu) {
     uint16_t HL = get_rpair(cpu->H, cpu->L);
     uint16_t value = 0;
@@ -134,6 +161,11 @@ void dad_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+/*
+    Adds 1 to a specified 16-bit register pair (BC, DE, or HL),
+    effectively performing a 16-bit addition,
+    without affecting any of the 8080's status flags.
+*/
 void inx_generic(uint8_t opcode, CPU8080 *cpu) {
     uint16_t value;
 
@@ -160,6 +192,11 @@ void inx_generic(uint8_t opcode, CPU8080 *cpu) {
     cpu->PC += 1;
 }
 
+/*
+    Decrements a specified 16-bit register pair by one,
+    treating them as a single 16-bit value,
+    without affecting any of the 8080's status flags.
+*/
 void dcx_generic(uint8_t opcode, CPU8080 *cpu) {
     uint16_t value;
 

@@ -3,6 +3,8 @@
 #include "../instructions/instructions.h"
 #include <stdio.h>
 
+// MACROS
+
 #define SET_RANGE_OP(start, stop, func) do { \
     for (int op = (start); op <= (stop); op++) { \
         instruction_table[op] = (func); \
@@ -16,6 +18,7 @@
     } \
 } while (0)
 
+// void (*InstructionFunc)(uint8_t opcode, CPU8080 *cpu)
 InstructionFunc instruction_table[256] = {0};
 bool custom_cycle = false;
 
