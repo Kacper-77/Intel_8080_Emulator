@@ -1,8 +1,11 @@
 # Intel 8080 Emulator in C
 
 A cycle-accurate emulator for the Intel 8080 CPU, built from scratch to explore the foundations of processor architecture and low-level execution. This project includes full instruction decoding, stack and interrupt handling, and a suite of test programs with visual logs.
-I spent over a month building this project, and I'm proud to share it with you.
 
+# The following test ROMs have been successfully passed:
+**CPUTEST**
+**8080EXM**
+**TST8080**
 
 # 🧠 Human Side — Motivation & Highlights
 ## 🎯 Why I Built This Emulator
@@ -18,8 +21,6 @@ I wanted the emulator to feel like a real machine, but also like a clean codebas
 ## 💡 My Favorite Part
 The instruction decoder. I built a system that maps opcodes directly to instruction handlers, so adding new instructions was as simple as writing a few lines of code. It turned what could have been a tedious process into something elegant and satisfying. Watching the CPU execute new instructions just moments after adding them to the table was incredibly rewarding.
 
-Let me know if you want to adjust the tone or add a short intro sentence at the top. Otherwise, we’re ready to move on to the Tech Side whenever you are.
-
 # ⚙️ Technical Side — Architecture, Execution & Demo
 ## 🧩 What It Is
 This is a cycle-accurate emulator for the Intel 8080 CPU, written entirely in C. It simulates the behavior of the processor at the instruction level, including:
@@ -33,7 +34,7 @@ This is a cycle-accurate emulator for the Intel 8080 CPU, written entirely in C.
 
 The goal was to build a minimal yet complete emulator that behaves like the real 8080 — not just in terms of output, but in how it gets there.
 
-## 🔍 Why the Intel 8080?
+# 🔍 Why the Intel 8080?
 The Intel 8080 is one of the earliest general-purpose microprocessors, and it laid the foundation for the x86 architecture. Emulating it is like stepping into the roots of modern computing. It’s simple enough to implement without external dependencies, but rich enough to teach:
 - Instruction decoding
 - Flag logic
@@ -67,133 +68,20 @@ Interrupts and traps can also be triggered
 ## 🧩 Decoder Design
 The decoder is built as a lookup table that maps each opcode to its corresponding handler. This makes the architecture modular and scalable — adding a new instruction is as simple as writing a handler and registering it.
 
-# 🧪 Demo: Some Test Programs
-## Final test (already in main.c):
-```
-=== 8080 Emulator Self-test Harness (robust) ===
-PC: 0x0000, Opcode: 0x3E, Cycles: 0
-PC: 0x0002, Opcode: 0x06, Cycles: 7
-PC: 0x0004, Opcode: 0x80, Cycles: 14
-PC: 0x0005, Opcode: 0x76, Cycles: 18
-[ADD (MVI/ADD)] ✅ PASS
-PC: 0x0000, Opcode: 0x21, Cycles: 0
-PC: 0x0003, Opcode: 0x11, Cycles: 10
-PC: 0x0006, Opcode: 0x19, Cycles: 20
-PC: 0x0007, Opcode: 0x76, Cycles: 30
-[LXI + DAD] ✅ PASS
-PC: 0x0000, Opcode: 0xCD, Cycles: 0
-PC: 0x0006, Opcode: 0x3E, Cycles: 17
-PC: 0x0008, Opcode: 0xC9, Cycles: 24
-PC: 0x0003, Opcode: 0x76, Cycles: 34
-[CALL / RET] ✅ PASS
-PC: 0x0000, Opcode: 0x3E, Cycles: 0
-PC: 0x0002, Opcode: 0x3C, Cycles: 7
-PC: 0x0003, Opcode: 0x76, Cycles: 12
-[INR (overflow->zero)] ✅ PASS
-PC: 0x0000, Opcode: 0xFB, Cycles: 0
-
-[cb_interrupt] requested interrupt (interrupt_enabled==true)
-PC: 0x0008, Opcode: 0x3E, Cycles: 15
-PC: 0x000A, Opcode: 0xC9, Cycles: 22
-PC: 0x0001, Opcode: 0x00, Cycles: 32
-PC: 0x0002, Opcode: 0x00, Cycles: 36
-PC: 0x0003, Opcode: 0x76, Cycles: 40
-[Interrupt (EI + RST1)] ✅ PASS
-PC: 0x0000, Opcode: 0x3E, Cycles: 0
-PC: 0x0002, Opcode: 0x00, Cycles: 7
-PC: 0x0003, Opcode: 0x00, Cycles: 11
-
-[cb_trap] triggered trap at cycles=15
-PC: 0x0024, Opcode: 0x3E, Cycles: 15
-PC: 0x0026, Opcode: 0xC9, Cycles: 22
-PC: 0x0004, Opcode: 0x76, Cycles: 32
-[Trap (trigger_trap -> 0x24)] ✅ PASS
-
-=== Summary: 6/6 tests passed ===
-```
-
-## Test #1:
-```
-uint8_t program[] = {
-    0xFB,       // EI
-    0x26, 0x30,
-    0x2E, 0x00,
-    0x3E, 0x05, // MVI A 
-    0x06, 0x0A, // MVI B
-    0x80,       // ADD B
-    0x00,       // NOP
-    
-    0x21, 0x34, 0x12, // LXI H, 0x1234
-    0x11, 0x11, 0x11, // LXI D, 0x1111
-    0x19,             // DAD D
-    0x76              // HLT
-};
-
-uint8_t interrupt_handler[] = {
-    0x3E, 0xFF, // MVI A, 0xFF
-    0xC9        // RET
-};
-
-uint8_t trap_handler[] = {
-0x96,
-0xC9            // RET
-};
-```
-## Result:
-![test_01](src/test/test_01.png)
-
-## Test #2:
-```
-uint8_t program[] = {
-    0x31, 0xFF, 0xFF,     // LXI SP, 0xFFFF
-    0x21, 0x00, 0x10,     // LXI H, 0x1000
-    0x11, 0x01, 0x10,     // LXI D, 0x1001
-    0xEB,                 // XCHG (HL <-> DE)
-    0xC5,                 // PUSH B
-    0xD5,                 // PUSH D
-    0xCD, 0x20, 0x00,     // CALL 0x0020
-    0xE1,                 // POP H
-    0xC1,                 // POP B
-    0x3E, 0x01,           // MVI A, 0x01
-    0xFE, 0x01,           // CPI 0x01
-    0xCA, 0x30, 0x00,     // JZ 0x0030 HLT
-};
-```
-## Result:
-![test_02](src/test/test_02.jpeg)
-
-## Test #3:
-```
-uint8_t program[] = {
-        0x3E, 0x0F,           // MVI A, 0x0F
-        0x04,                 // INR B
-        0x05,                 // DCR B
-        0x0F,                 // RRC
-        0x17,                 // RAL
-        0xA0,                 // ANA B
-        0xA8,                 // XRA B
-        0xB0,                 // ORA B
-        0xDB, 0x01,           // IN 0x01
-        0xD3, 0x02,           // OUT 0x02
-        0xDB, 0x01,
-        0xD3, 0x02,
-        0x76                  // HLT
-};
-```
-## Result:
-![test_03](src/test/test_03.jpeg)
 
 # 🚀 How to Run
 ## 🧱 Requirements:
 - C compiler
 - Terminal or shell environment
 
-## 💻 Example command:
-`clang [all files are need to be compiled] -o [your name of compiled file]`
+## 💻 Run:
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
 
-## 🎊 Run:
-`./[name of compiled file]`
-
-## 💡 Tip:
-I highly recommend to use CMake, it's versatile and comfortable
-method to run projects. CMakeLists.txt is ready to use.
+```bash
+./emulator8080
+```
