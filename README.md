@@ -3,9 +3,9 @@
 A cycle-accurate emulator for the Intel 8080 CPU, built from scratch to explore the foundations of processor architecture and low-level execution. This project includes full instruction decoding, stack and interrupt handling, and a suite of test programs with visual logs.
 
 # The following test ROMs have been successfully passed:
-**CPUTEST**
-**8080EXM**
-**TST8080**
+- **CPUTEST**
+- **8080EXM**
+- **TST8080**
 
 # 🧠 Human Side — Motivation & Highlights
 ## 🎯 Why I Built This Emulator
