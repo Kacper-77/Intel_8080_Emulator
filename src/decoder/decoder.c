@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 // MACROS
-
 #define SET_RANGE_OP(start, stop, func) do { \
     for (int op = (start); op <= (stop); op++) { \
         instruction_table[op] = (func); \
@@ -23,7 +22,6 @@ InstructionFunc instruction_table[256] = {0};
 bool custom_cycle = false;
 
 void init_instruction_table(void) {
-    // All instructions (some are overriden, but it's not a mistake)
     SET_RANGE_OP(0x40, 0x7F, mov_generic);                                      // MOV
     SET_OP(mvi_generic, 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E);        // MVI
     SET_OP(lxi_generic, 0x01, 0x11, 0x21, 0x31);                                // LXI
