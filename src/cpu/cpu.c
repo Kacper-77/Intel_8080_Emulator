@@ -7,6 +7,8 @@
 
 #define STACK_MIN 0x0000
 
+extern InstructionFunc instruction_table[256];
+
 static const uint8_t t_states[256] = {
     4,  10, 7,  5,  5,  5,  7,  4,  4,  10, 7,  5,  5,  7,  4,  4,  // 0x00 - 0x0F
     4,  10, 7,  5,  5,  7,  4,  4,  4,  10, 7,  5,  5,  7,  4,  4,  // 0x10 - 0x1F
